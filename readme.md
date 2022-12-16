@@ -4,6 +4,8 @@ Libary for creating spatial space hierarchies, like game engines and renderes wo
 
 This package was created for my master thesis and only aims about integrety but not performance. For the most of the calculations the package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used.
 
+## Install
+```pip install spatial-transform```
 
 ## Features
 - Transforms as stackable in form of trees.
@@ -13,6 +15,7 @@ This package was created for my master thesis and only aims about integrety but 
 - Space is defined as: Y+ is Up and right handed like openGL
 
 ## Examples
+
 
 ### Create and stack transforms
 ```python
