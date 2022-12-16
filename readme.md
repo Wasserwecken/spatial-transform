@@ -19,29 +19,45 @@ This package was created for my master thesis and only aims about integrety but 
 
 ### Create and stack transforms
 ```python
-import spatial-transform as st
+import SpatialTransform as st
 
 root = st.Transform('root')
 child1 = st.Transform('child1')
 
 root.append(child1)
 ```
-
 ### Change properties
 ```python
-import spatial-transform as st
+import SpatialTransform as st
 
 root = st.Transform('root')
 root.Position = (1,2,3)
-root.SetEuler(0, 45, 0)
+root.SetEuler((0, 45, 0))
 root.Scale = (10, 10, 10)
+root.Forward = (1, 1, 1)
 ```
-
-### Convert between spaced
+### Read properties
 ```python
-import spatial-transform as st
+import SpatialTransform as st
 
 root = st.Transform('root')
-root.pointToWorld(1,1,1)
-root.directionToLocal(1,1,1)
+print(root.Position)
+print(root.Orientation)
+print(root.Scale)
+print(root.ForwardLocal)
+print(root.ForwardWorld)
+print(root.UpLocal)
+print(root.UpWorld)
+print(root.RightLocal)
+print(root.RightWorld)
+print(root.SpaceLocal)
+print(root.SpaceWorld)
+```
+### Convert between spaced
+```python
+import SpatialTransform as st
+
+root = st.Transform('root')
+print(root.pointToWorld((1,1,1)))
+print(root.directionToLocal((1,1,1)))
 ```
