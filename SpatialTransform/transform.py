@@ -1,7 +1,7 @@
 import glm
 import random
 import string
-import transform as tr
+from .euler import Euler
 
 
 class Transform:
@@ -172,10 +172,10 @@ class Transform:
         """Returns the current orientation as euler angles in the given order.
 
         The angles are in degrees and intrinsic."""
-        return glm.degrees(tr.Euler.fromQuatTo(self.Orientation, order))
+        return glm.degrees(Euler.fromQuatTo(self.Orientation, order))
 
     def SetEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
-        self.Orientation = tr.Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
+        self.Orientation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
 
 
     def remove(self, node:object, keepPosition:bool = False, keepOrientation:bool = False) -> None:
