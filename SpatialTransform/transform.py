@@ -26,7 +26,7 @@ class Transform:
             self._SpaceLocal = glm.scale(self._SpaceLocal, self._Scale)
             self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._Orientation)
             self.__isOutdatedLocal = False
-        return self._SpaceLocal
+        return glm.mat4(self._SpaceLocal)
     @SpaceLocal.setter
     def SpaceLocal(self, value:glm.mat4) -> None:
         self._SpaceLocal = value
@@ -37,7 +37,6 @@ class Transform:
             glm.vec3(),
             glm.vec4())
         self.__isOutdatedLocal = False
-        return glm.inverse(self.SpaceLocal)
 
 
     @property
@@ -53,7 +52,7 @@ class Transform:
     @property
     def Position(self) -> glm.vec3:
         """Local offset of the space."""
-        return self._Position
+        return glm.vec3(self._Position)
     @Position.setter
     def Position(self, value:glm.vec3) -> None:
         self._Position = glm.vec3(value)
@@ -63,7 +62,7 @@ class Transform:
     @property
     def Orientation(self) -> glm.quat:
         """Local orientation of this space."""
-        return self._Orientation
+        return glm.quat(self._Orientation)
     @Orientation.setter
     def Orientation(self, value:glm.quat) -> None:
         self._Orientation = glm.quat(value)
@@ -73,7 +72,7 @@ class Transform:
     @property
     def Scale(self) -> glm.vec3:
         """Local scale of the space."""
-        return self._Scale
+        return glm.vec3(self._Scale)
     @Scale.setter
     def Scale(self, value:glm.vec3) -> None:
         self._Scale = glm.vec3(value)
@@ -134,9 +133,9 @@ class Transform:
         self._Parent = None
         self._Children = []
 
-        self._Position = position
-        self.Scale = scale
-        self.Orientation = orientation
+        self._Position = glm.vec3(position)
+        self._Scale = glm.vec3(scale)
+        self._Orientation = glm.quat(orientation)
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
