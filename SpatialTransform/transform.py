@@ -85,7 +85,9 @@ class Transform:
         return self._Orientation * (0,0,1)
     @ForwardLocal.setter
     def ForwardLocal(self, direction:glm.vec3) -> None:
-        self._Orientation = glm.quatLookAtLH(glm.normalize(direction), (0,1,0))
+        direction = glm.normalize(direction)
+        dirDot = abs(glm.dot(direction, (0,1,0)))
+        self._Orientation = glm.quatLookAtRH(direction, (0,1,0) if dirDot < 0.999 else (1,0,0))
         self.__isOutdatedLocal = True
     @property
     def ForwardWorld(self) -> glm.vec3:
