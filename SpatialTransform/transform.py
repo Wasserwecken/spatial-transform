@@ -158,13 +158,13 @@ class Transform:
         return glm.quat(self.SpaceWorldInverse) * direction
 
 
-    def GetEuler(self, order:str = 'ZXY') -> glm.vec3:
+    def getEuler(self, order:str = 'ZXY') -> glm.vec3:
         """Returns the current orientation as euler angles in the given order.
 
         The angles are in degrees and intrinsic."""
         return glm.degrees(Euler.fromQuatTo(self.Orientation, order))
 
-    def SetEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
+    def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
         self.Orientation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
 
 
@@ -253,3 +253,10 @@ class Transform:
 
             # propagatte it recursively
             if recursive: child.applyRotation(rotation, recursive)
+
+    def layout(self, index:int = 0, depth:int = 0) -> list[tuple[object, int, int]]:
+        """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth"""
+        result = [[self, index, depth]]
+        for child in self.Children:
+            result.extend(child.layout(result[-1][1] + 1, depth + 1))
+        return result
