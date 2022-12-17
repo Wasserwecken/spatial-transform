@@ -7,7 +7,7 @@ from .euler import Euler
 class Transform:
     """Spatial definition of an linear space with position, rotation and scale.
 
-    Space is defined as Y:up and right handed and positive rotations are counter clockwise."""
+    Space is defined as right handed where Y+:up and X+:right and Z-:forward. Positive rotations are counter clockwise."""
 
     @property
     def Name(self) -> str:
@@ -37,7 +37,6 @@ class Transform:
             glm.vec3(),
             glm.vec4())
         self.__isOutdatedLocal = False
-
 
     @property
     def SpaceWorld(self) -> glm.mat4:
@@ -82,21 +81,11 @@ class Transform:
     @property
     def ForwardLocal(self) -> glm.vec3:
         """Current local orientation of the Z-Axis"""
-        return self._Orientation * (0,0,1)
-    @ForwardLocal.setter
-    def ForwardLocal(self, direction:glm.vec3) -> None:
-        direction = glm.normalize(direction)
-        dirDot = abs(glm.dot(direction, (0,1,0)))
-        self._Orientation = glm.quatLookAtRH(direction, (0,1,0) if dirDot < 0.999 else (1,0,0))
-        self.__isOutdatedLocal = True
+        return self._Orientation * (0,0,-1)
     @property
     def ForwardWorld(self) -> glm.vec3:
         """Current orientation of the Z-Axis in world space"""
-        return glm.quat(self.SpaceWorld) * (0,0,1)
-    @ForwardWorld.setter
-    def ForwardWorld(self, direction:glm.vec3) -> None:
-        self.ForwardLocal = glm.quat(self.SpaceWorldInverse) * direction
-        self.__isOutdatedLocal = True
+        return glm.quat(self.SpaceWorld) * (0,0,-1)
 
     @property
     def RightLocal(self) -> glm.vec3:
@@ -177,6 +166,19 @@ class Transform:
 
     def SetEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
         self.Orientation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
+
+
+    def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
+        """Sets orientation so the Z- axis aligns with the given direction. Direction is considered as local space"""
+        direction = glm.normalize(direction)
+        dirDot = abs(glm.dot(direction, (0,1,0)))
+        self._Orientation = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
+        self.__isOutdatedLocal = True
+
+    def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
+        """Sets orientation so the Z- axis aligns with the given direction.  Direction is considered as world space"""
+        parentSpace = (self._Parent.SpaceWorld if self._Parent else glm.mat4())
+        self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
 
 
     def remove(self, node:object, keepPosition:bool = False, keepOrientation:bool = False) -> None:
