@@ -7,20 +7,6 @@ This package is created for my master thesis and aims about integrety but not pe
 ``` batch
 pip install spatial-transform
  ```
-
-## Notes
-This libary works with the same space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html), which is:
-- right handed
-- Y+ is up
-- Z- is forward
-- Positive rotation is counter clockwise
-
-Euler angles can be set with methods on the transform.
-- ``SetEuler()`` supports any instrinic or extrinsic rotation order
-- ``GetEuler()`` supports any rotation order but intrinsic only
-
-Euler angles are Degrees for the ``Transform`` class but in radians for the ``Euler`` class
-
 ## Features
 - Space properties in local and world space
     - Position
@@ -36,9 +22,21 @@ Euler angles are Degrees for the ``Transform`` class but in radians for the ``Eu
     - Every method is documented in code with docstrings
     - Every method has type hinting
 - Includes a static class for euler angle conversions.
+## Notes
+This libary works with the same space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html), which is:
+- right handed
+- Y+ is up
+- Z- is forward
+- Positive rotation is counter clockwise
+
+Euler angles can be set with methods on the transform.
+- ``SetEuler()`` supports any instrinic or extrinsic rotation order
+- ``GetEuler()`` supports any rotation order but intrinsic only
+
+Euler angles are Degrees for the ``Transform`` class but in radians for the ``Euler`` class
 
 ## Examples
-## Create and attach transforms
+### Create and attach transforms
 ``` python
 from SpatialTransform import Transform as T
 
@@ -57,7 +55,7 @@ for item, index, depth in root.layout():
     print(f'Position:{item.pointToWorld((0,0,0))} Forward:{item.ForwardWorld} {item.Name}')
 ```
 
-## Change properties
+### Change properties
 ``` python
 # gets a transform in the hierarchy
 foot = root.select('LeftLegFoot', isEqual=True)[0]
@@ -81,7 +79,7 @@ foot.directionToWorld((0,0,1)) # converts a direction from local to world space
 foot.directionToLocal((0,0,1)) # inverse of pointToWorld
 ```
 
-# Euler angles conversions
+### Euler angles conversions
 ``` python
 from SpatialTransform import Euler
 
