@@ -47,8 +47,27 @@ root = T('Hips', position=(0,2,0)).attach(
 
 # print info about created structure
 root.printTree()
+
+print('\nWorld space positions:')
 for item, index, depth in root.layout():
-    print(f'Position:{item.pointToWorld((0,0,0))} Forward:{item.ForwardWorld} {item.Name}')
+    print(f'{item.pointToWorld((0,0,0))} {item.Name}')
+
+# Hips
+# +- LeftLegUpper
+# |  +- LeftLegLower
+# |     +- LeftLegFoot
+# +- RightLegUpper
+#    +- RightLegLower
+#       +- RightLegFoot
+
+# World space positions:
+# vec3(            0,            2,            0 ) Hips
+# vec3(          0.2,            2,            0 ) LeftLegUpper
+# vec3(          0.2,            1,            0 ) LeftLegLower
+# vec3(          0.2,            0,            0 ) LeftLegFoot
+# vec3(         -0.2,            2,            0 ) RightLegUpper
+# vec3(         -0.2,            1,            0 ) RightLegLower
+# vec3(         -0.2,            0,            0 ) RightLegFoot
 ```
 
 ### Change properties
@@ -86,5 +105,5 @@ quaternion = Euler.toQuatFrom((1, 2, .5), 'YZX', True)
 angles1 = Euler.fromMatTo(matrix, 'XYZ', False)
 angles2 = Euler.fromQuatTo(quaternion, 'XYZ', False)
 
-print(angles1 - angles2)
+print(angles1 - angles2) # this will be zero, because its the same angle
 ```
