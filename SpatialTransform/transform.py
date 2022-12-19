@@ -108,11 +108,11 @@ class Transform:
 
 
     @property
-    def Parent(self) -> object:
+    def Parent(self) -> "Transform":
         """Transform where this one aligns in repsect to it."""
         return self._Parent
     @property
-    def Children(self) -> list[object]:
+    def Children(self) -> list["Transform"]:
         """Attachted transforms."""
         return self._Children
 
@@ -168,23 +168,27 @@ class Transform:
         self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
 
 
-    def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
-        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space"""
+    def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
+        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Return value the transform itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0,1,0)))
         self._Rotation = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
         self.__isOutdatedLocal = True
+        return self
 
-    def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
-        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space"""
+    def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
+        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space Return value the transform itself."""
         parentSpace = (self._Parent.SpaceWorld if self._Parent else glm.mat4())
         self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
+        return self
 
 
-    def remove(self, node:object, keepPosition:bool = False, keepRotation:bool = False) -> None:
+    def remove(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
         """Removes the given child transform.
 
-        If keep***** is true, the given transform will be modified to keep its world property."""
+        If keep***** is true, the given transform will be modified to keep its world property.
+
+         Return value the transform itself."""
         # validate given joint
         if node is None: raise ValueError(f'Given joint value is None')
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be removed from itself')
@@ -196,34 +200,42 @@ class Transform:
         # remove
         self._Children.remove(node)
         node._Parent = None
+        return self
 
-    def append(self, node:object, keepPosition:bool = False, keepRotation:bool = False) -> None:
-        """Attaches the given transform to this one as a child.
+    def append(self, *nodes:list["Transform"], keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+        """Attaches the given transforms to this one as a child.
 
-        If keep***** is true, the given transform will be modified to keep its world property."""
-        # validate given joint
-        if node is None: raise ValueError(f'Given joint value is None')
-        if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
+        If keep***** is true, the given transform will be modified to keep its world property.
 
-        # remove
-        if node._Parent is not None:
-            node._Parent.remove(node, keepPosition, keepRotation)
+        Return value the transform itself."""
+        for node in nodes:
+            # validate given joint
+            if node is None: raise ValueError(f'Given joint value is None')
+            if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
 
-        # attatch
-        self._Children.append(node)
-        node._Parent = self
+            # remove
+            if node._Parent is not None:
+                node._Parent.remove(node, keepPosition, keepRotation)
 
-        # correct Rotation
-        if keepPosition: node.Position = self.pointToLocal(node.Position)
-        if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
+            # attatch
+            self._Children.append(node)
+            node._Parent = self
 
-    def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> None:
+            # correct Rotation
+            if keepPosition: node.Position = self.pointToLocal(node.Position)
+            if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
+        return self
+
+
+    def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
         Will update the position of this transform and postions of its children.
 
-        If no position is given, the transform resets its own position to (0,0,0)
+        If no position is given, the transform resets its own position to (0,0,0).
 
-        If a position is given, the position is added to this transform"""
+        If a position is given, the position is added to this transform.
+
+         Return value the transform itself."""
         # define position change
         change = self.Position if position is None else -position
 
@@ -234,14 +246,17 @@ class Transform:
 
             # propagatte it recursively
             if recursive: child.applyPosition(position, recursive)
+        return self
 
-    def applyRotation(self, rotation:glm.quat = None, recursive:bool = False) -> None:
+    def applyRotation(self, rotation:glm.quat = None, recursive:bool = False) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
         Will update the Rotation of this transform and postion and Rotation of its children.
 
-        If no rotation is given, the transform resets its own rotation to none
+        If no rotation is given, the transform resets its own rotation to none.
 
-        If a rotation is given, the rotation is added to this transform"""
+        If a rotation is given, the rotation is added to this transform.
+
+         Return value the transform itself."""
         # define rotation change
         change = self.Rotation if rotation is None else glm.inverse(rotation)
 
@@ -253,15 +268,16 @@ class Transform:
 
             # propagatte it recursively
             if recursive: child.applyRotation(rotation, recursive)
+        return self
 
-    def layout(self, index:int = 0, depth:int = 0) -> list[tuple[object, int, int]]:
+    def layout(self, index:int = 0, depth:int = 0) -> list[tuple["Transform", int, int]]:
         """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth"""
         result = [[self, index, depth]]
         for child in self.Children:
             result.extend(child.layout(result[-1][1] + 1, depth + 1))
         return result
 
-    def printTree(self, markerStr="+- ", levelMarkers=[]):
+    def printTree(self, markerStr="+- ", levelMarkers=[]) -> None:
         # src: https://simonhessner.de/python-3-recursively-print-structured-tree-including-hierarchy-markers-using-depth-first-search/
         """
         Recursive function that prints the hierarchical structure of a tree including markers that indicate
