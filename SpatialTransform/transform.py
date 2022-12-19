@@ -120,10 +120,10 @@ class Transform:
     def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), Rotation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
         """Creates a new transform. Parameters are considerd as local space"""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
-        self._SpaceLocal = glm.mat4()
         self._Parent = None
         self._Children = []
 
+        self.reset()
         self._Position = glm.vec3(position)
         self._Scale = glm.vec3(scale)
         self._Rotation = glm.quat(Rotation)
@@ -139,6 +139,23 @@ class Transform:
             + f"\nScale: {self._Scale}"
             + f"\nChildren: {len(self._Children)}"
         )
+
+    def reset(self) -> "Transform":
+        """Resets the whole transform to pos: 0,0,0 scale: 1,1,1 and no rotation"""
+        self._SpaceLocal = glm.mat4()
+        self.__isOutdatedLocal = True
+
+    def resetPosition(self) -> "Transform":
+        """Resets the position to 0,0,0"""
+        self.Position = (0,0,0)
+
+    def resetRotation(self) -> "Transform":
+        """Resets rotation"""
+        self.Rotation = glm.quat()
+
+    def resetScale(self) -> "Transform":
+        """Resets scale to 1,1,1"""
+        self.Scale = (1,1,1)
 
     def pointToWorld(self, point:glm.vec3) -> glm.vec3:
         """Transforms a given point in this local space to world space"""
