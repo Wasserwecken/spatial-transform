@@ -2,8 +2,6 @@ import glm
 import random
 import string
 from .euler import Euler
-
-
 class Transform:
     """Spatial definition of an linear space with position, rotation and scale.
 
