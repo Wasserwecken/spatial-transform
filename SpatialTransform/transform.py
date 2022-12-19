@@ -260,3 +260,28 @@ class Transform:
         for child in self.Children:
             result.extend(child.layout(result[-1][1] + 1, depth + 1))
         return result
+
+    def printTree(self, markerStr="+- ", levelMarkers=[]):
+        # src: https://simonhessner.de/python-3-recursively-print-structured-tree-including-hierarchy-markers-using-depth-first-search/
+        """
+        Recursive function that prints the hierarchical structure of a tree including markers that indicate
+        parent-child relationships between nodes.
+
+        Parameters:
+        - root: Node instance, possibly containing children Nodes
+        - markerStr: String to print in front of each node  ("+- " by default)
+        - levelMarkers: Internally used by recursion to indicate where to
+                        print markers and connections (see explanations below)
+        """
+
+        emptyStr = " "*len(markerStr)
+        connectionStr = "|" + emptyStr[:-1]
+        level = len(levelMarkers)   # recursion level
+        mapper = lambda draw: connectionStr if draw else emptyStr
+        markers = "".join(map(mapper, levelMarkers[:-1]))
+        markers += markerStr if level > 0 else ""
+        print(f"{markers}{self.Name}")
+
+        for i, child in enumerate(self.Children):
+            isLast = i == len(self.Children) - 1
+            child.printTree(markerStr, [*levelMarkers, not isLast])
