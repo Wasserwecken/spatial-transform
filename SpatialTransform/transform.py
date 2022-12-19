@@ -120,8 +120,8 @@ class Transform:
     def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), Rotation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
         """Creates a new transform. Parameters are considerd as local space"""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
-        self._Parent = None
-        self._Children = []
+        self._Parent:"Transform" = None
+        self._Children:list["Transform"] = []
 
         self.reset()
         self._Position = glm.vec3(position)
@@ -144,18 +144,22 @@ class Transform:
         """Resets the whole transform to pos: 0,0,0 scale: 1,1,1 and no rotation"""
         self._SpaceLocal = glm.mat4()
         self.__isOutdatedLocal = True
+        return self
 
     def resetPosition(self) -> "Transform":
         """Resets the position to 0,0,0"""
         self.Position = (0,0,0)
+        return self
 
     def resetRotation(self) -> "Transform":
         """Resets rotation"""
         self.Rotation = glm.quat()
+        return self
 
     def resetScale(self) -> "Transform":
         """Resets scale to 1,1,1"""
         self.Scale = (1,1,1)
+        return self
 
     def pointToWorld(self, point:glm.vec3) -> glm.vec3:
         """Transforms a given point in this local space to world space"""
@@ -181,8 +185,9 @@ class Transform:
         The angles are in degrees and intrinsic."""
         return glm.degrees(Euler.fromQuatTo(self.Rotation, order))
 
-    def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
+    def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> "Transform":
         self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
+        return self
 
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
@@ -217,6 +222,24 @@ class Transform:
         # remove
         self._Children.remove(node)
         node._Parent = None
+        return self
+
+    def clearParent(self, keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+        """Detaches/removes itself from the parent.
+
+        If keep***** is true, the given transform will be modified to keep its world property.
+
+        Returns the transform itself."""
+        if self._Parent is not None: self._Parent.remove(self, keepPosition, keepRotation)
+
+    def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+        """Removes all children of this transform.
+
+        If keep***** is true, the given transform will be modified to keep its world property.
+
+        Returns the transform itself."""
+        for child in self.Children:
+            self.remove(child, keepPosition, keepRotation)
         return self
 
     def append(self, *nodes:list["Transform"], keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
