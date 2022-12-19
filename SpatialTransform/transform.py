@@ -1,3 +1,4 @@
+import re
 import glm
 import random
 import string
@@ -83,7 +84,7 @@ class Transform:
     @property
     def ForwardWorld(self) -> glm.vec3:
         """Current Rotation of the Z-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (0,0,-1,0))
+        return glm.normalize(self.SpaceWorld * (0,0,-1,0)).xyz
 
     @property
     def RightLocal(self) -> glm.vec3:
@@ -92,7 +93,7 @@ class Transform:
     @property
     def RightWorld(self) -> glm.vec3:
         """Current Rotation of the X-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (1,0,0,0))
+        return glm.normalize(self.SpaceWorld * (1,0,0,0)).xyz
 
 
     @property
@@ -102,7 +103,7 @@ class Transform:
     @property
     def UpWorld(self) -> glm.vec3:
         """Current Rotation of the Y-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (0,1,0,0))
+        return glm.normalize(self.SpaceWorld * (0,1,0,0)).xyz
 
 
     @property
@@ -203,45 +204,45 @@ class Transform:
         return self
 
 
-    def remove(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
-        """Removes the given child transform.
+    def detach(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+        """Detachs the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
         # validate given joint
         if node is None: raise ValueError(f'Given joint value is None')
-        if node is self: raise ValueError(f'Joint "{self.Name}" cannot be removed from itself')
+        if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
 
         # correct properties
         if keepPosition: node.Position = node.pointToWorld((0,0,0))
         if keepRotation: node.Rotation = node.Rotation * self.Rotation
         if keepScale: node.Scale = node.Scale * self.Scale
 
-        # remove
+        # detach
         self._Children.remove(node)
         node._Parent = None
         return self
 
     def clearParent(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
-        """Detaches/removes itself from the parent.
+        """Detaches/detachs itself from the parent.
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
-        if self._Parent is not None: self._Parent.remove(self, keepPosition, keepRotation, keepScale)
+        if self._Parent is not None: self._Parent.detach(self, keepPosition, keepRotation, keepScale)
 
     def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
-        """Removes all children of this transform.
+        """detachs all children of this transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
         for child in self.Children:
-            self.remove(child, keepPosition, keepRotation, keepScale)
+            self.detach(child, keepPosition, keepRotation, keepScale)
         return self
 
-    def append(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+    def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -252,9 +253,9 @@ class Transform:
             if node is None: raise ValueError(f'Given joint value is None')
             if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
 
-            # remove
+            # detach
             if node._Parent is not None:
-                node._Parent.remove(node, keepPosition, keepRotation)
+                node._Parent.detach(node, keepPosition, keepRotation)
 
             # attatch
             self._Children.append(node)
@@ -363,3 +364,30 @@ class Transform:
         for i, child in enumerate(self.Children):
             isLast = i == len(self.Children) - 1
             child.printTree(markerStr, [*levelMarkers, not isLast])
+
+    def select(self, pattern:str, isEqual:bool = False, caseSensitive:bool = False) -> list["Transform"]:
+        """Tries to find transforms that matches the pattern in their name name.
+
+        If isEqual is true, the name has to be equal to the pattern. Otherwise the pattern must only appear anywhere in the name."""
+        result = []
+
+        selfname = self.Name if caseSensitive else self.Name.lower()
+        if not caseSensitive: pattern = pattern.lower()
+
+        if (isEqual and pattern == selfname) or (not isEqual and pattern in selfname):
+            result.append(self)
+        for child in self._Children:
+            result.extend(child.select(pattern, isEqual, caseSensitive))
+
+        return result
+
+    def selectRegex(self, pattern:str) -> list["Transform"]:
+        """Tries to find transforms that matches the pattern in their name name."""
+        result = []
+
+        if re.match(pattern, self.Name) is not None:
+            result.append(self)
+        for child in self._Children:
+            result.extend(child.select(pattern))
+
+        return result
