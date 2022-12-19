@@ -58,7 +58,7 @@ for item, index, depth in root.layout():
 ### Change properties
 ``` python
 # gets a transform in the hierarchy
-foot = root.select('LeftLegFoot', isEqual=True)[0]
+foot = root.filter('LeftLegFoot', isEqual=True)[0]
 
 # basic property changes
 foot.Position = (0.5, 0, 0)

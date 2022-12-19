@@ -178,14 +178,17 @@ class Transform:
         return glm.quat(self.SpaceWorldInverse) * direction
 
 
-    def getEuler(self, order:str = 'ZXY') -> glm.vec3:
+    def getEuler(self, order:str = 'ZXY', extrinsic:bool = True) -> glm.vec3:
         """Returns the current Rotation as euler angles in the given order.
 
-        The angles are in degrees and intrinsic."""
+        If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
         return glm.degrees(Euler.fromQuatTo(self.Rotation, order))
 
-    def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> "Transform":
-        self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
+    def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', extrinsic:bool = True) -> "Transform":
+        """Converts the given euler anlges to quaternion and sets the rotation property.
+
+        If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
+        self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
         return self
 
 
@@ -365,7 +368,7 @@ class Transform:
             isLast = i == len(self.Children) - 1
             child.printTree(markerStr, [*levelMarkers, not isLast])
 
-    def select(self, pattern:str, isEqual:bool = False, caseSensitive:bool = False) -> list["Transform"]:
+    def filter(self, pattern:str, isEqual:bool = False, caseSensitive:bool = False) -> list["Transform"]:
         """Tries to find transforms that matches the pattern in their name name.
 
         If isEqual is true, the name has to be equal to the pattern. Otherwise the pattern must only appear anywhere in the name."""
@@ -377,17 +380,17 @@ class Transform:
         if (isEqual and pattern == selfname) or (not isEqual and pattern in selfname):
             result.append(self)
         for child in self._Children:
-            result.extend(child.select(pattern, isEqual, caseSensitive))
+            result.extend(child.filter(pattern, isEqual, caseSensitive))
 
         return result
 
-    def selectRegex(self, pattern:str) -> list["Transform"]:
+    def filterRegex(self, pattern:str) -> list["Transform"]:
         """Tries to find transforms that matches the pattern in their name name."""
         result = []
 
         if re.match(pattern, self.Name) is not None:
             result.append(self)
         for child in self._Children:
-            result.extend(child.select(pattern))
+            result.extend(child.filter(pattern))
 
         return result
