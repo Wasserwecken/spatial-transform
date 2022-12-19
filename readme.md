@@ -29,11 +29,7 @@ This libary works with the same space as [openGL and GLM](https://www.evl.uic.ed
 - Z- is forward
 - Positive rotation is counter clockwise
 
-Euler angles can be set with methods on the transform.
-- ``SetEuler()`` supports any instrinic or extrinsic rotation order
-- ``GetEuler()`` supports any rotation order but intrinsic only
-
-Euler angles are Degrees for the ``Transform`` class but in radians for the ``Euler`` class
+Euler angles can be set with methods on the transform. ``SetEuler()`` and ``GetEuler()`` support any instrinic or extrinsic rotation order. Angles are degrees for the ``Transform`` class but radians for the ``Euler`` class.
 
 ## Examples
 ### Create and attach transforms
@@ -84,9 +80,11 @@ foot.directionToLocal((0,0,1)) # inverse of pointToWorld
 from SpatialTransform import Euler
 
 # rotations are in radians here
-matrix = Euler.toMatFrom((1, 2, .5), 'YZX', extrinsic=True)
-quaternion = Euler.toQuatFrom((1, 2, .5), 'YZX', extrinsic=True)
+matrix = Euler.toMatFrom((1, 2, .5), 'YZX', True)
+quaternion = Euler.toQuatFrom((1, 2, .5), 'YZX', True)
 
-angles1 = Euler.fromMatTo(matrix, 'XYZ')
-angles2 = Euler.fromQuatTo(quaternion, 'XYZ')
+angles1 = Euler.fromMatTo(matrix, 'XYZ', False)
+angles2 = Euler.fromQuatTo(quaternion, 'XYZ', False)
+
+print(angles1 - angles2)
 ```
