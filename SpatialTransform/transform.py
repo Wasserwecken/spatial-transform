@@ -24,7 +24,7 @@ class Transform:
         if self.__isOutdatedLocal:
             self._SpaceLocal = glm.translate(self._Position)
             self._SpaceLocal = glm.scale(self._SpaceLocal, self._Scale)
-            self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._Orientation)
+            self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._Rotation)
             self.__isOutdatedLocal = False
         return glm.mat4(self._SpaceLocal)
     @SpaceLocal.setter
@@ -32,7 +32,7 @@ class Transform:
         self._SpaceLocal = value
         glm.decompose(value,
             self._Scale,
-            self._Orientation,
+            self._Rotation,
             self._Position,
             glm.vec3(),
             glm.vec4())
@@ -59,12 +59,12 @@ class Transform:
 
 
     @property
-    def Orientation(self) -> glm.quat:
-        """Local orientation of this space."""
-        return glm.quat(self._Orientation)
-    @Orientation.setter
-    def Orientation(self, value:glm.quat) -> None:
-        self._Orientation = glm.quat(value)
+    def Rotation(self) -> glm.quat:
+        """Local Rotation of this space."""
+        return glm.quat(self._Rotation)
+    @Rotation.setter
+    def Rotation(self, value:glm.quat) -> None:
+        self._Rotation = glm.quat(value)
         self.__isOutdatedLocal = True
 
 
@@ -80,30 +80,30 @@ class Transform:
 
     @property
     def ForwardLocal(self) -> glm.vec3:
-        """Current local orientation of the Z-Axis"""
-        return self._Orientation * (0,0,-1)
+        """Current local Rotation of the Z-Axis"""
+        return self._Rotation * (0,0,-1)
     @property
     def ForwardWorld(self) -> glm.vec3:
-        """Current orientation of the Z-Axis in world space"""
+        """Current Rotation of the Z-Axis in world space"""
         return glm.quat(self.SpaceWorld) * (0,0,-1)
 
     @property
     def RightLocal(self) -> glm.vec3:
-        """Current local orientation of the X-Axis"""
-        return self._Orientation * (1,0,0)
+        """Current local Rotation of the X-Axis"""
+        return self._Rotation * (1,0,0)
     @property
     def RightWorld(self) -> glm.vec3:
-        """Current orientation of the X-Axis in world space"""
+        """Current Rotation of the X-Axis in world space"""
         return glm.quat(self.SpaceWorld) * (1,0,0)
 
 
     @property
     def UpLocal(self) -> glm.vec3:
-        """Current local orientation of the Y-Axis"""
-        return self._Orientation * (0,1,0)
+        """Current local Rotation of the Y-Axis"""
+        return self._Rotation * (0,1,0)
     @property
     def UpWorld(self) -> glm.vec3:
-        """Current orientation of the Y-Axis in world space"""
+        """Current Rotation of the Y-Axis in world space"""
         return glm.quat(self.SpaceWorld) * (0,1,0)
 
 
@@ -117,7 +117,7 @@ class Transform:
         return self._Children
 
 
-    def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), orientation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
+    def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), Rotation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
         """Creates a new transform. Parameters are considerd as local space"""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
         self._SpaceLocal = glm.mat4()
@@ -126,7 +126,7 @@ class Transform:
 
         self._Position = glm.vec3(position)
         self._Scale = glm.vec3(scale)
-        self._Orientation = glm.quat(orientation)
+        self._Rotation = glm.quat(Rotation)
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
@@ -135,7 +135,7 @@ class Transform:
     def __str__(self) -> str:
         return (f"Name: {self._Name}"
             + f"\nPos: {self._Position}"
-            + f"\nRot: {self.Orientation}"
+            + f"\nRot: {self.Rotation}"
             + f"\nScale: {self._Scale}"
             + f"\nChildren: {len(self._Children)}"
         )
@@ -159,29 +159,29 @@ class Transform:
 
 
     def getEuler(self, order:str = 'ZXY') -> glm.vec3:
-        """Returns the current orientation as euler angles in the given order.
+        """Returns the current Rotation as euler angles in the given order.
 
         The angles are in degrees and intrinsic."""
-        return glm.degrees(Euler.fromQuatTo(self.Orientation, order))
+        return glm.degrees(Euler.fromQuatTo(self.Rotation, order))
 
     def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', intrinsic = True) -> None:
-        self.Orientation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
+        self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, intrinsic)
 
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
-        """Sets orientation so the Z- axis aligns with the given direction. Direction is considered as local space"""
+        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space"""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0,1,0)))
-        self._Orientation = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
+        self._Rotation = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
         self.__isOutdatedLocal = True
 
     def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> None:
-        """Sets orientation so the Z- axis aligns with the given direction.  Direction is considered as world space"""
+        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space"""
         parentSpace = (self._Parent.SpaceWorld if self._Parent else glm.mat4())
         self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
 
 
-    def remove(self, node:object, keepPosition:bool = False, keepOrientation:bool = False) -> None:
+    def remove(self, node:object, keepPosition:bool = False, keepRotation:bool = False) -> None:
         """Removes the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its world property."""
@@ -191,13 +191,13 @@ class Transform:
 
         # correct properties
         if keepPosition: node.Position = node.pointToWorld((0,0,0))
-        if keepOrientation: node.Orientation = node.Orientation * self.Orientation
+        if keepRotation: node.Rotation = node.Rotation * self.Rotation
 
         # remove
         self._Children.remove(node)
         node._Parent = None
 
-    def append(self, node:object, keepPosition:bool = False, keepOrientation:bool = False) -> None:
+    def append(self, node:object, keepPosition:bool = False, keepRotation:bool = False) -> None:
         """Attaches the given transform to this one as a child.
 
         If keep***** is true, the given transform will be modified to keep its world property."""
@@ -207,15 +207,15 @@ class Transform:
 
         # remove
         if node._Parent is not None:
-            node._Parent.remove(node, keepPosition, keepOrientation)
+            node._Parent.remove(node, keepPosition, keepRotation)
 
         # attatch
         self._Children.append(node)
         node._Parent = self
 
-        # correct orientation
+        # correct Rotation
         if keepPosition: node.Position = self.pointToLocal(node.Position)
-        if keepOrientation: node.Orientation = node.Orientation * (glm.inverse(self.Orientation))
+        if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
 
     def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> None:
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
@@ -237,19 +237,19 @@ class Transform:
 
     def applyRotation(self, rotation:glm.quat = None, recursive:bool = False) -> None:
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
-        Will update the orientation of this transform and postion and orientation of its children.
+        Will update the Rotation of this transform and postion and Rotation of its children.
 
         If no rotation is given, the transform resets its own rotation to none
 
         If a rotation is given, the rotation is added to this transform"""
         # define rotation change
-        change = self.Orientation if rotation is None else glm.inverse(rotation)
+        change = self.Rotation if rotation is None else glm.inverse(rotation)
 
         # apply change
-        self.Orientation = self.Orientation * glm.inverse(change)
+        self.Rotation = self.Rotation * glm.inverse(change)
         for child in self.Children:
             child.Position = change * child.Position
-            child.Orientation = change * child.Orientation
+            child.Rotation = change * child.Rotation
 
             # propagatte it recursively
             if recursive: child.applyRotation(rotation, recursive)

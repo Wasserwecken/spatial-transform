@@ -42,7 +42,7 @@ import SpatialTransform as st
 
 root = st.Transform('root')
 print(root.Position)
-print(root.Orientation)
+print(root.Rotation)
 print(root.Scale)
 print(root.ForwardLocal)
 print(root.ForwardWorld)
