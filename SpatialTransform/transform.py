@@ -85,7 +85,7 @@ class Transform:
     @property
     def ForwardWorld(self) -> glm.vec3:
         """Current Rotation of the Z-Axis in world space"""
-        return glm.quat(self.SpaceWorld) * (0,0,-1)
+        return glm.normalize(self.SpaceWorld * (0,0,-1,0))
 
     @property
     def RightLocal(self) -> glm.vec3:
@@ -94,7 +94,7 @@ class Transform:
     @property
     def RightWorld(self) -> glm.vec3:
         """Current Rotation of the X-Axis in world space"""
-        return glm.quat(self.SpaceWorld) * (1,0,0)
+        return glm.normalize(self.SpaceWorld * (1,0,0,0))
 
 
     @property
@@ -104,7 +104,7 @@ class Transform:
     @property
     def UpWorld(self) -> glm.vec3:
         """Current Rotation of the Y-Axis in world space"""
-        return glm.quat(self.SpaceWorld) * (0,1,0)
+        return glm.normalize(self.SpaceWorld * (0,1,0,0))
 
 
     @property
@@ -169,7 +169,7 @@ class Transform:
 
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Return value the transform itself."""
+        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Returns the transform itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0,1,0)))
         self._Rotation = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
@@ -177,7 +177,7 @@ class Transform:
         return self
 
     def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space Return value the transform itself."""
+        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space Returns the transform itself."""
         parentSpace = (self._Parent.SpaceWorld if self._Parent else glm.mat4())
         self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
         return self
@@ -188,7 +188,7 @@ class Transform:
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
-         Return value the transform itself."""
+        Returns the transform itself."""
         # validate given joint
         if node is None: raise ValueError(f'Given joint value is None')
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be removed from itself')
@@ -207,7 +207,7 @@ class Transform:
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
-        Return value the transform itself."""
+        Returns the transform itself."""
         for node in nodes:
             # validate given joint
             if node is None: raise ValueError(f'Given joint value is None')
@@ -235,7 +235,7 @@ class Transform:
 
         If a position is given, the position is added to this transform.
 
-         Return value the transform itself."""
+        Returns the transform itself."""
         # define position change
         change = self.Position if position is None else -position
 
@@ -256,7 +256,7 @@ class Transform:
 
         If a rotation is given, the rotation is added to this transform.
 
-         Return value the transform itself."""
+        Returns the transform itself."""
         # define rotation change
         change = self.Rotation if rotation is None else glm.inverse(rotation)
 
@@ -268,6 +268,28 @@ class Transform:
 
             # propagatte it recursively
             if recursive: child.applyRotation(rotation, recursive)
+        return self
+
+    def appyScale(self, scale:glm.vec3 = None, recursive:bool = False) -> "Transform":
+        """Changes the scale of this transform and updates its children to keep them spatial unchanged.
+        Will update the Scale of this transform and postion and scale of its children.
+
+        If no scale is given, the transform resets its own scale to (1,1,1).
+
+        If a scale is given, the scale is added to this transform.
+
+        Returns the transform itself."""
+        # define scale change
+        change = self.Scale if scale is None else 1 / glm.vec3(scale)
+
+        # apply change
+        self.Scale = self.Scale * glm.div(1, change)
+        for child in self.Children:
+            child.Position = change * child.Position
+            child.Scale = change * child.Scale
+
+            # propagatte it recursively
+            if recursive: child.appyScale(scale, recursive)
         return self
 
     def layout(self, index:int = 0, depth:int = 0) -> list[tuple["Transform", int, int]]:
