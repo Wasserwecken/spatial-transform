@@ -8,15 +8,16 @@ class Euler:
     Matrices are expected to be column major, like glm.
     """
 
-    def toQuatFrom(radians:glm.vec3, order:str, intrinsic:bool) -> glm.quat:
+    def toQuatFrom(radians:glm.vec3, order:str, extrinsic:bool) -> glm.quat:
         """Converts euler angles to quaternion.
 
         Rotation order of eulers must be given as 'XYZ' in any order.
 
         If intrinsic the rotation will be around the axes, respecting the previous rotations"""
         result = glm.quat()
+        radians = glm.vec3(radians)
         for axis in order:
-            if intrinsic:
+            if not extrinsic:
                 if axis.upper() == 'X': result = glm.rotate(result, radians.x, (1, 0, 0)); continue
                 if axis.upper() == 'Y': result = glm.rotate(result, radians.y, (0, 1, 0)); continue
                 if axis.upper() == 'Z': result = glm.rotate(result, radians.z, (0, 0, 1)); continue
