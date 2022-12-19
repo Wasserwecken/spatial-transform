@@ -205,7 +205,7 @@ class Transform:
         return self
 
 
-    def remove(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+    def remove(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Removes the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -218,31 +218,32 @@ class Transform:
         # correct properties
         if keepPosition: node.Position = node.pointToWorld((0,0,0))
         if keepRotation: node.Rotation = node.Rotation * self.Rotation
+        if keepScale: node.Scale = node.Scale * self.Scale
 
         # remove
         self._Children.remove(node)
         node._Parent = None
         return self
 
-    def clearParent(self, keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+    def clearParent(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Detaches/removes itself from the parent.
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
-        if self._Parent is not None: self._Parent.remove(self, keepPosition, keepRotation)
+        if self._Parent is not None: self._Parent.remove(self, keepPosition, keepRotation, keepScale)
 
-    def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+    def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Removes all children of this transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
         for child in self.Children:
-            self.remove(child, keepPosition, keepRotation)
+            self.remove(child, keepPosition, keepRotation, keepScale)
         return self
 
-    def append(self, *nodes:list["Transform"], keepPosition:bool = False, keepRotation:bool = False) -> "Transform":
+    def append(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -264,6 +265,7 @@ class Transform:
             # correct Rotation
             if keepPosition: node.Position = self.pointToLocal(node.Position)
             if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
+            if keepScale: node.Scale = node.Scale * (1 / self.Scale)
         return self
 
 
