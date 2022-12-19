@@ -21,11 +21,12 @@ class Euler:
         result = glm.quat()
         radians = glm.vec3(radians)
 
+        order = order.upper()
         if extrinsic: order = reversed(order)
         for axis in order:
-                if axis.upper() == 'X': result = glm.rotate(result, radians.x, (1, 0, 0)); continue
-                if axis.upper() == 'Y': result = glm.rotate(result, radians.y, (0, 1, 0)); continue
-                if axis.upper() == 'Z': result = glm.rotate(result, radians.z, (0, 0, 1)); continue
+                if axis == 'X': result = glm.rotate(result, radians.x, (1, 0, 0)); continue
+                if axis == 'Y': result = glm.rotate(result, radians.y, (0, 1, 0)); continue
+                if axis == 'Z': result = glm.rotate(result, radians.z, (0, 0, 1)); continue
 
         return result
 
@@ -52,14 +53,17 @@ class Euler:
         Rotation order of eulers must be given as 'XYZ' in any order.
 
         If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
-        if order.upper() == 'XYZ': return fromMatToZYX(mat) if extrinsic else fromMatToXYZ(mat)
-        if order.upper() == 'XZY': return fromMatToYZX(mat) if extrinsic else fromMatToXZY(mat)
-        if order.upper() == 'YXZ': return fromMatToZXY(mat) if extrinsic else fromMatToYXZ(mat)
-        if order.upper() == 'YZX': return fromMatToXZY(mat) if extrinsic else fromMatToYZX(mat)
-        if order.upper() == 'ZXY': return fromMatToYXZ(mat) if extrinsic else fromMatToZXY(mat)
-        if order.upper() == 'ZYX': return fromMatToXYZ(mat) if extrinsic else fromMatToZYX(mat)
+        order = order.upper()
+        if extrinsic: order = order[::-1]
 
-        raise ValueError(f'given order "{order}" is invalid. Order must be "XYZ" in any order')
+        if order == 'XYZ': return fromMatToXYZ(mat)
+        if order == 'XZY': return fromMatToXZY(mat)
+        if order == 'YXZ': return fromMatToYXZ(mat)
+        if order == 'YZX': return fromMatToYZX(mat)
+        if order == 'ZXY': return fromMatToZXY(mat)
+        if order == 'ZYX': return fromMatToZYX(mat)
+
+        raise ValueError(f'given order "{order}" is invalid. Must be "XYZ" in any order')
 
 
 def fromMatToXZY(mat:glm.mat3) -> glm.vec3:
