@@ -206,6 +206,30 @@ class Transform:
         self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
         return self
 
+    def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+        """Attaches the given transforms to this one as a child.
+
+        If keep***** is true, the given transform will be modified to keep its world property.
+
+        Returns the transform itself."""
+        for node in nodes:
+            # validate given joint
+            if node is None: raise ValueError(f'Given joint value is None')
+            if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
+
+            # detach
+            if node._Parent is not None:
+                node._Parent.detach(node, keepPosition, keepRotation)
+
+            # attatch
+            self._Children.append(node)
+            node._Parent = self
+
+            # correct Rotation
+            if keepPosition: node.Position = self.pointToLocal(node.Position)
+            if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
+            if keepScale: node.Scale = node.Scale * (1 / self.Scale)
+        return self
 
     def detach(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Detachs the given child transform.
@@ -245,32 +269,6 @@ class Transform:
         for child in self.Children:
             self.detach(child, keepPosition, keepRotation, keepScale)
         return self
-
-    def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
-        """Attaches the given transforms to this one as a child.
-
-        If keep***** is true, the given transform will be modified to keep its world property.
-
-        Returns the transform itself."""
-        for node in nodes:
-            # validate given joint
-            if node is None: raise ValueError(f'Given joint value is None')
-            if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
-
-            # detach
-            if node._Parent is not None:
-                node._Parent.detach(node, keepPosition, keepRotation)
-
-            # attatch
-            self._Children.append(node)
-            node._Parent = self
-
-            # correct Rotation
-            if keepPosition: node.Position = self.pointToLocal(node.Position)
-            if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
-            if keepScale: node.Scale = node.Scale * (1 / self.Scale)
-        return self
-
 
     def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
