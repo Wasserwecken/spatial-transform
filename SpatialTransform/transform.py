@@ -234,6 +234,7 @@ class Transform:
 
         Returns the transform itself."""
         if self._Parent is not None: self._Parent.detach(self, keepPosition, keepRotation, keepScale)
+        return self
 
     def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """detachs all children of this transform.
