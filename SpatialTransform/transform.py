@@ -283,9 +283,9 @@ class Transform:
         change = self.Position if position is None else -position
 
         # apply change
-        self.Position = self.Position - position
+        self.Position = self.Position - change
         for child in self.Children:
-            child.Position = child.Position + position
+            child.Position = child.Position + change
 
             # propagatte it recursively
             if recursive: child.applyPosition(position, recursive)
