@@ -129,7 +129,7 @@ class Transform:
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
-        return (f"Name: {self._Name}")
+        return (f"{self._Name}")
 
     def __str__(self) -> str:
         return (f"Name: {self._Name}"
