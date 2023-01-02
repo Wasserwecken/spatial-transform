@@ -242,7 +242,7 @@ class Transform:
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
 
         # correct properties
-        if keepPosition: node.Position = node.pointToWorld((0,0,0))
+        if keepPosition: node.Position = self.pointToWorld(node.Position)
         if keepRotation: node.Rotation = node.Rotation * self.Rotation
         if keepScale: node.Scale = node.Scale * self.Scale
 
