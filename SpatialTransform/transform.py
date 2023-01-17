@@ -317,24 +317,28 @@ class Transform:
         """Changes the scale of this transform and updates its children to keep them spatial unchanged.
         Will update the Scale of this transform and postion and scale of its children.
 
-        If no scale is given, the transform resets its own scale to (1,1,1).
+        If no scale is given, the transform applies its own current scale to the children.
 
-        If a scale is given, the scale is added to this transform.
+        if scale is given, the current scale will be scaled (multiplied) and the children updated.
 
-        Returns the transform itself."""
+        if includeLocal is true, the transforms also scales its own local position.
+
+        Returns itself."""
         # define scale change
-        change = self.Scale if scale is None else (1 / glm.vec3(scale))
+        change = self.Scale if scale is None else glm.div(1, glm.vec3(scale))
+        changeInverse = glm.div(1, change)
 
-        # apply change
-        self.Scale *= glm.div(1, change)
-        if includeLocal: self.Position *= change
+        # set scale to one
+        self.Scale *= changeInverse
+        if includeLocal: self.Position *= changeInverse
 
+        # keep space for children
         for child in self.Children:
             child.Position *= change
             child.Scale *= change
 
             # may do it recursively
-            if recursive: child.appyScale(scale, recursive)
+            if recursive: child.appyScale(scale, recursive, includeLocal=False)
         return self
 
     def layout(self, index:int = 0, depth:int = 0) -> list[tuple["Transform", int, int]]:
