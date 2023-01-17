@@ -160,7 +160,7 @@ class Transform:
         self.Scale = (1,1,1)
         return self
 
-    def pointToWorld(self, point:glm.vec3) -> glm.vec3:
+    def pointToWorld(self, point:glm.vec3 = glm.vec3(0)) -> glm.vec3:
         """Transforms a given point in this local space to world space"""
         return self.SpaceWorld * point
 
@@ -323,7 +323,7 @@ class Transform:
 
         Returns the transform itself."""
         # define scale change
-        change = self.Scale if scale is None else 1 / glm.vec3(scale)
+        change = self.Scale if scale is None else (1 / glm.vec3(scale))
 
         # apply change
         self.Scale = self.Scale * glm.div(1, change)
