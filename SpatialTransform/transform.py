@@ -206,7 +206,7 @@ class Transform:
         self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
         return self
 
-    def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+    def attach(self, *nodes:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
@@ -233,7 +233,7 @@ class Transform:
             if keepScale: node.Scale = wsScale * node.Scale
         return self
 
-    def detach(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+    def detach(self, node:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
         """Detachs the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
