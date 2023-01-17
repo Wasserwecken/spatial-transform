@@ -287,7 +287,7 @@ class Transform:
         for child in self.Children:
             child.Position = child.Position + change
 
-            # propagatte it recursively
+            # may do it recursively
             if recursive: child.applyPosition(position, recursive)
         return self
 
@@ -309,11 +309,11 @@ class Transform:
             child.Position = change * child.Position
             child.Rotation = change * child.Rotation
 
-            # propagatte it recursively
+            # may do it recursively
             if recursive: child.applyRotation(rotation, recursive)
         return self
 
-    def appyScale(self, scale:glm.vec3 = None, recursive:bool = False) -> "Transform":
+    def appyScale(self, scale:glm.vec3 = None, recursive:bool = False, includeLocal:bool = False) -> "Transform":
         """Changes the scale of this transform and updates its children to keep them spatial unchanged.
         Will update the Scale of this transform and postion and scale of its children.
 
@@ -326,12 +326,14 @@ class Transform:
         change = self.Scale if scale is None else (1 / glm.vec3(scale))
 
         # apply change
-        self.Scale = self.Scale * glm.div(1, change)
-        for child in self.Children:
-            child.Position = change * child.Position
-            child.Scale = change * child.Scale
+        self.Scale *= glm.div(1, change)
+        if includeLocal: self.Position *= change
 
-            # propagatte it recursively
+        for child in self.Children:
+            child.Position *= change
+            child.Scale *= change
+
+            # may do it recursively
             if recursive: child.appyScale(scale, recursive)
         return self
 
