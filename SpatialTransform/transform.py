@@ -313,32 +313,27 @@ class Transform:
             if recursive: child.applyRotation(rotation, recursive)
         return self
 
-    def appyScale(self, scale:glm.vec3 = None, recursive:bool = False, includeLocal:bool = False) -> "Transform":
-        """Changes the scale of this transform and updates its children to keep them spatial unchanged.
-        Will update the Scale of this transform and postion and scale of its children.
+    def appyScale(self, scale:glm.vec3 = glm.vec3(1), recursive:bool = False, includeLocal:bool = False) -> "Transform":
+        """Resets the scale of the transform to (1,1,1) and updates its children to keep them spatial unchanged.
 
-        If no scale is given, the transform applies its own current scale to the children.
-
-        if scale is given, the current scale will be scaled (multiplied) and the children updated.
+        if scale is set, the transform is scaled before values are modified.
 
         if includeLocal is true, the transforms also scales its own local position.
 
         Returns itself."""
-        # define scale change
-        change = self.Scale if scale is None else glm.div(1, glm.vec3(scale))
-        changeInverse = glm.div(1, change)
-
-        # set scale to one
-        self.Scale *= changeInverse
-        if includeLocal: self.Position *= changeInverse
+        self.Scale *= scale
+        if includeLocal:
+            self.Position *= self.Scale
 
         # keep space for children
         for child in self.Children:
-            child.Position *= change
-            child.Scale *= change
+            child.Position *= self.Scale
+            child.Scale *= self.Scale
 
             # may do it recursively
-            if recursive: child.appyScale(scale, recursive, includeLocal=False)
+            if recursive: child.appyScale(recursive, includeLocal=False)
+
+        self.Scale = 1
         return self
 
     def layout(self, index:int = 0, depth:int = 0) -> list[tuple["Transform", int, int]]:
