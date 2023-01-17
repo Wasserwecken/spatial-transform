@@ -273,25 +273,18 @@ class Transform:
             self.detach(child, keepPosition, keepRotation, keepScale)
         return self
 
-    def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> "Transform":
-        """Changes the position of this transform and updates its children to keep them spatial unchanged.
-        Will update the position of this transform and postions of its children.
+    def applyPosition(self, position:glm.vec3 = glm.vec3()) -> "Transform":
+        """Resets the position of this transform for (0,0,0) and updates its children to keep them spatial unchanged.
 
-        If no position is given, the transform resets its own position to (0,0,0).
+        If a position is given, the position is before values are modified.
 
-        If a position is given, the position is added to this transform.
+        Returns itself."""
+        self.Position += position
 
-        Returns the transform itself."""
-        # define position change
-        change = self.Position if position is None else -position
-
-        # apply change
-        self.Position = self.Position - change
         for child in self.Children:
-            child.Position = child.Position + change
+            child.Position = self.Position + child.Position
 
-            # may do it recursively
-            if recursive: child.applyPosition(position, recursive)
+        self.Position = glm.vec3()
         return self
 
     def applyRotation(self, rotation:glm.quat = glm.quat(), recursive:bool = False, includeLocal:bool = False) -> "Transform":
