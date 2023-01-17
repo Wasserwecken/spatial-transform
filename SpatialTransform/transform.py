@@ -246,8 +246,8 @@ class Transform:
         # correct properties
         _, wsRotation, wsScale, _, _ = self.decomposeSpaceWorld()
         if keepPosition: node.Position = self.SpaceWorld * node.Position
-        if keepRotation: node.Rotation = wsRotation * self.Rotation
-        if keepScale: node.Scale = wsScale * self.Scale
+        if keepRotation: node.Rotation = wsRotation * node.Rotation
+        if keepScale: node.Scale = wsScale * node.Scale
 
         # detach
         self._Children.remove(node)
