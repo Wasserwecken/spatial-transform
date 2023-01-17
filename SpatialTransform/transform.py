@@ -209,9 +209,11 @@ class Transform:
     def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
-        If keep***** is true, the given transform will be modified to keep its world property.
+        If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
 
         Returns the transform itself."""
+        _, wsRotation, wsScale, _, _ = self.decomposeSpaceWorldInverse()
+
         for node in nodes:
             # validate given joint
             if node is None: raise ValueError(f'Given joint value is None')
@@ -226,15 +228,15 @@ class Transform:
             node._Parent = self
 
             # correct Rotation
-            if keepPosition: node.Position = self.pointToLocal(node.Position)
-            if keepRotation: node.Rotation = node.Rotation * (glm.inverse(self.Rotation))
-            if keepScale: node.Scale = node.Scale * (1 / self.Scale)
+            if keepPosition: node.Position = self.SpaceWorldInverse * node.Position
+            if keepRotation: node.Rotation = wsRotation * node.Rotation
+            if keepScale: node.Scale = wsScale * node.Scale
         return self
 
     def detach(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Detachs the given child transform.
 
-        If keep***** is true, the given transform will be modified to keep its world property.
+        If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
 
         Returns the transform itself."""
         # validate given joint
@@ -242,9 +244,10 @@ class Transform:
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
 
         # correct properties
-        if keepPosition: node.Position = self.pointToWorld(node.Position)
-        if keepRotation: node.Rotation = node.Rotation * self.Rotation
-        if keepScale: node.Scale = node.Scale * self.Scale
+        _, wsRotation, wsScale, _, _ = self.decomposeSpaceWorld()
+        if keepPosition: node.Position = self.SpaceWorld * node.Position
+        if keepRotation: node.Rotation = wsRotation * self.Rotation
+        if keepScale: node.Scale = wsScale * self.Scale
 
         # detach
         self._Children.remove(node)
@@ -394,3 +397,25 @@ class Transform:
             result.extend(child.filter(pattern))
 
         return result
+
+    def __decomposeSpace(space:glm.mat4) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
+        """Decomposes given space into its elements.
+
+        Return order is: translation, orientation, scale, skew, perspective"""
+        scale = glm.vec3(); translation = glm.vec3(); skew = glm.vec3(); orientation = glm.quat(); perspective = glm.vec4()
+        glm.decompose(space, scale, orientation, translation, skew, perspective)
+
+        return (translation, orientation, scale, skew, perspective)
+
+    def decomposeSpaceWorld(self) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
+        """Decomposes the world space into its elements.
+
+        Return order is: translation, orientation, scale, skew, perspective"""
+        return Transform.__decomposeSpace(self.SpaceWorld)
+
+    def decomposeSpaceWorldInverse(self) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
+        """Decomposes inverted world space into its elements.
+
+        Return order is: translation, orientation, scale, skew, perspective"""
+        return Transform.__decomposeSpace(self.SpaceWorldInverse)
+
