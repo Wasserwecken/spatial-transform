@@ -254,7 +254,7 @@ class Transform:
         node._Parent = None
         return self
 
-    def clearParent(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+    def clearParent(self, keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
         """Detaches/detachs itself from the parent.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -263,7 +263,7 @@ class Transform:
         if self._Parent is not None: self._Parent.detach(self, keepPosition, keepRotation, keepScale)
         return self
 
-    def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
+    def clearChildren(self, keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
         """detachs all children of this transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
