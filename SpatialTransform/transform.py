@@ -116,16 +116,15 @@ class Transform:
         return self._Children
 
 
-    def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), Rotation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
+    def __init__(self, name:str = None, position:glm.vec3 = glm.vec3(), rotation:glm.quat = glm.quat(), scale:glm.vec3 = glm.vec3(1)) -> None:
         """Creates a new transform. Parameters are considerd as local space"""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
         self._Parent:"Transform" = None
         self._Children:list["Transform"] = []
 
-        self.reset()
         self._Position = glm.vec3(position)
         self._Scale = glm.vec3(scale)
-        self._Rotation = glm.quat(Rotation)
+        self._Rotation = glm.quat(rotation)
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
