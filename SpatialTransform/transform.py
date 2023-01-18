@@ -139,25 +139,36 @@ class Transform:
             + f"\nChildren: {len(self._Children)}"
         )
 
-    def reset(self) -> "Transform":
-        """Resets the whole transform to pos: 0,0,0 scale: 1,1,1 and no rotation"""
-        self._SpaceLocal = glm.mat4()
-        self.__isOutdatedLocal = True
+    def reset(self, recursive:bool = False) -> "Transform":
+        """Resets the whole transform to pos: (0,0,0) scale: (1,1,1) and no rotation"""
+        self.SpaceLocal = glm.mat4()
+        if recursive:
+            for child in self._Children:
+                child.reset(recursive=True)
         return self
 
-    def resetPosition(self) -> "Transform":
+    def resetPosition(self, recursive:bool = False) -> "Transform":
         """Resets the position to 0,0,0"""
         self.Position = (0,0,0)
+        if recursive:
+            for child in self._Children:
+                child.resetPosition(recursive=True)
         return self
 
-    def resetRotation(self) -> "Transform":
+    def resetRotation(self, recursive:bool = False) -> "Transform":
         """Resets rotation"""
         self.Rotation = glm.quat()
+        if recursive:
+            for child in self._Children:
+                child.resetRotation(recursive=True)
         return self
 
-    def resetScale(self) -> "Transform":
+    def resetScale(self, recursive:bool = False) -> "Transform":
         """Resets scale to 1,1,1"""
         self.Scale = (1,1,1)
+        if recursive:
+            for child in self._Children:
+                child.resetScale(recursive=True)
         return self
 
     def pointToWorld(self, point:glm.vec3 = glm.vec3(0)) -> glm.vec3:
