@@ -26,17 +26,6 @@ class Transform:
             self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._Rotation)
             self.__isOutdatedLocal = False
         return glm.mat4(self._SpaceLocal)
-    @SpaceLocal.setter
-    def SpaceLocal(self, value:glm.mat4) -> None:
-        self._SpaceLocal = value
-        glm.decompose(value,
-            self._Scale,
-            self._Rotation,
-            self._Position,
-            glm.vec3(),
-            glm.vec4())
-        self.__isOutdatedLocal = False
-
     @property
     def SpaceWorld(self) -> glm.mat4:
         """Space of this with respect to its parent"""
@@ -201,6 +190,11 @@ class Transform:
         self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
         return self
 
+    def getRotationWorld(self) -> glm.quat:
+        return (self._Parent.getRotationWorld() if self._Parent else glm.quat()) * self._Rotation
+
+    def getScaleWorld(self) -> glm.quat:
+        return (self._Parent.getScaleWorld() if self._Parent else glm.vec3(1)) * self._Scale
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
         """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Returns the transform itself."""
@@ -222,8 +216,6 @@ class Transform:
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
 
         Returns the transform itself."""
-        _, wsRotation, wsScale, _, _ = self.decomposeSpaceWorldInverse()
-
         for node in nodes:
             # validate given joint
             if node is None: raise ValueError(f'Given joint value is None')
@@ -239,8 +231,8 @@ class Transform:
 
             # correct Rotation
             if keepPosition: node.Position = self.SpaceWorldInverse * node.Position
-            if keepRotation: node.Rotation = wsRotation * node.Rotation
-            if keepScale: node.Scale = wsScale * node.Scale
+            if keepRotation: node.Rotation = glm.inverse(self.getRotationWorld()) * node.Rotation
+            if keepScale: node.Scale = glm.div(1, self.getScaleWorld()) * node.Scale
         return self
 
     def detach(self, node:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
@@ -254,10 +246,9 @@ class Transform:
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
 
         # correct properties
-        _, wsRotation, wsScale, _, _ = self.decomposeSpaceWorld()
         if keepPosition: node.Position = self.SpaceWorld * node.Position
-        if keepRotation: node.Rotation = wsRotation * node.Rotation
-        if keepScale: node.Scale = wsScale * node.Scale
+        if keepRotation: node.Rotation = self.getRotationWorld() * node.Rotation
+        if keepScale: node.Scale = self.getScaleWorld() * node.Scale
 
         # detach
         self._Children.remove(node)
@@ -401,25 +392,3 @@ class Transform:
             result.extend(child.filter(pattern))
 
         return result
-
-    def __decomposeSpace(space:glm.mat4) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
-        """Decomposes given space into its elements.
-
-        Return order is: translation, orientation, scale, skew, perspective"""
-        scale = glm.vec3(); translation = glm.vec3(); skew = glm.vec3(); orientation = glm.quat(); perspective = glm.vec4()
-        glm.decompose(space, scale, orientation, translation, skew, perspective)
-
-        return (translation, orientation, scale, skew, perspective)
-
-    def decomposeSpaceWorld(self) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
-        """Decomposes the world space into its elements.
-
-        Return order is: translation, orientation, scale, skew, perspective"""
-        return Transform.__decomposeSpace(self.SpaceWorld)
-
-    def decomposeSpaceWorldInverse(self) -> tuple[glm.vec3, glm.quat, glm.vec3, glm.vec3, glm.vec4]:
-        """Decomposes inverted world space into its elements.
-
-        Return order is: translation, orientation, scale, skew, perspective"""
-        return Transform.__decomposeSpace(self.SpaceWorldInverse)
-
