@@ -22,7 +22,7 @@ class Transform:
         """Space of this transform without respect to its parent."""
         if self.__isOutdatedLocal:
             self._SpaceLocal = glm.translate(self._Position)
-            self._SpaceLocal = glm.scale(self._SpaceLocal, self._Scale)
+            self._SpaceLocal = glm.scale(self._SpaceLocal, self._ScaleLocal)
             self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._RotationLocal)
             self.__isOutdatedLocal = False
         return glm.mat4(self._SpaceLocal)
@@ -67,13 +67,24 @@ class Transform:
         return glm.inverse(self._Parent.RotationWorld if self._Parent else glm.quat()) * self._RotationLocal
 
     @property
-    def Scale(self) -> glm.vec3:
+    def ScaleLocal(self) -> glm.vec3:
         """Local scale of the space."""
-        return glm.vec3(self._Scale)
-    @Scale.setter
-    def Scale(self, value:glm.vec3) -> None:
-        self._Scale = glm.vec3(value)
+        return glm.vec3(self._ScaleLocal)
+    @ScaleLocal.setter
+    def ScaleLocal(self, value:glm.vec3) -> None:
+        self._ScaleLocal = glm.vec3(value)
         self.__isOutdatedLocal = True
+    @property
+    def ScaleWorld(self) -> glm.vec3:
+        """World scale of the space."""
+        return (self._Parent.ScaleWorld if self._Parent else glm.quat()) * self._ScaleLocal
+    @ScaleWorld.setter
+    def ScaleWorld(self, value:glm.vec3) -> None:
+        self._ScaleLocal = self._Parent.ScaleWorldInverse if self._Parent else glm.vec3(1) * value
+    @property
+    def ScaleWorldInverse(self) -> glm.vec3:
+        """World inverse scale of the space."""
+        return (glm.div(1, self._Parent.ScaleWorld) if self._Parent else glm.vec3(1)) * self._ScaleLocal
 
 
     @property
@@ -122,7 +133,7 @@ class Transform:
         self._Children:list["Transform"] = []
 
         self._Position = glm.vec3(position)
-        self._Scale = glm.vec3(scale)
+        self._ScaleLocal = glm.vec3(scale)
         self._RotationLocal = glm.quat(rotation)
         self.__isOutdatedLocal = True
 
@@ -133,7 +144,7 @@ class Transform:
         return (f"Name: {self._Name}"
             + f"\nPos: {self._Position}"
             + f"\nRot: {self.RotationLocal}"
-            + f"\nScale: {self._Scale}"
+            + f"\nScale: {self._ScaleLocal}"
             + f"\nChildren: {len(self._Children)}"
         )
 
@@ -163,7 +174,7 @@ class Transform:
 
     def resetScale(self, recursive:bool = False) -> "Transform":
         """Resets scale to 1,1,1"""
-        self.Scale = (1,1,1)
+        self.ScaleLocal = (1,1,1)
         if recursive:
             for child in self._Children:
                 child.resetScale(recursive=True)
@@ -237,7 +248,7 @@ class Transform:
             # correct Rotation
             if keepPosition: node.Position = self.SpaceWorldInverse * node.Position
             if keepRotation: node.RotationLocal = self.RotationWorldInverse * node.RotationLocal
-            # if keepScale: node.Scale = glm.div(1, self.getScaleWorld()) * node.Scale
+            if keepScale: node.ScaleLocal = self.ScaleWorldInverse * node.ScaleLocal
         return self
 
     def detach(self, node:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
@@ -253,7 +264,7 @@ class Transform:
         # correct properties
         if keepPosition: node.Position = self.SpaceWorld * node.Position
         if keepRotation: node.RotationLocal = self.RotationWorld * node.RotationLocal
-        # if keepScale: node.Scale = self.getScaleWorld() * node.Scale
+        if keepScale: node.ScaleLocal = self.ScaleWorld * node.ScaleLocal
 
         # detach
         self._Children.remove(node)
@@ -325,19 +336,19 @@ class Transform:
         if includeLocal is true, the transforms also scales its own local position.
 
         Returns itself."""
-        self.Scale *= scale
+        self.ScaleLocal *= scale
         if includeLocal:
-            self.Position *= self.Scale
+            self.Position *= self.ScaleLocal
 
         # keep space for children
         for child in self.Children:
-            child.Position *= self.Scale
-            child.Scale *= self.Scale
+            child.Position *= self.ScaleLocal
+            child.ScaleLocal *= self.ScaleLocal
 
             # may do it recursively
             if recursive: child.appyScale(recursive=True, includeLocal=False)
 
-        self.Scale = glm.vec3(1)
+        self.ScaleLocal = glm.vec3(1)
         return self
 
 
