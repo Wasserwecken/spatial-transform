@@ -63,7 +63,7 @@ class Transform:
         return glm.quat(self._Rotation)
     @Rotation.setter
     def Rotation(self, value:glm.quat) -> None:
-        self._Rotation = glm.quat(value)
+        self._Rotation = glm.normalize(glm.quat(value))
         self.__isOutdatedLocal = True
 
 
@@ -124,7 +124,7 @@ class Transform:
 
         self._Position = glm.vec3(position)
         self._Scale = glm.vec3(scale)
-        self._Rotation = glm.quat(rotation)
+        self._Rotation = glm.normalize(glm.quat(rotation))
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
