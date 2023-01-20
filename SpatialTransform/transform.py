@@ -21,7 +21,7 @@ class Transform:
     def SpaceLocal(self) -> glm.mat4:
         """Space of this transform without respect to its parent."""
         if self.__isOutdatedLocal:
-            self._SpaceLocal = glm.translate(self._Position)
+            self._SpaceLocal = glm.translate(self._PositionLocal)
             self._SpaceLocal = glm.scale(self._SpaceLocal, self._ScaleLocal)
             self._SpaceLocal = self._SpaceLocal * glm.mat4_cast(self._RotationLocal)
             self.__isOutdatedLocal = False
@@ -37,50 +37,69 @@ class Transform:
 
 
     @property
-    def Position(self) -> glm.vec3:
-        """Local offset of the space."""
-        return glm.vec3(self._Position)
-    @Position.setter
-    def Position(self, value:glm.vec3) -> None:
-        self._Position = glm.vec3(value)
+    def PositionLocal(self) -> glm.vec3:
+        """Local position of the space."""
+        return glm.vec3(self._PositionLocal)
+
+    @PositionLocal.setter
+    def PositionLocal(self, value:glm.vec3) -> None:
+        self._PositionLocal = glm.vec3(value)
         self.__isOutdatedLocal = True
+
+    @property
+    def PositionWorld(self) -> glm.vec3:
+        """World position of this space."""
+        return (self._Parent.SpaceWorld if self._Parent else glm.mat4()) * self._PositionLocal
+
+    @PositionWorld.setter
+    def PositionWorld(self, value:glm.vec3) -> None:
+        self._PositionLocal = (self._Parent.SpaceWorldInverse if self._Parent else glm.mat4()) * value
 
 
     @property
     def RotationLocal(self) -> glm.quat:
         """Local rotation of this space."""
         return glm.quat(self._RotationLocal)
+
     @RotationLocal.setter
     def RotationLocal(self, value:glm.quat) -> None:
         self._RotationLocal = glm.quat(value)
         self.__isOutdatedLocal = True
+
     @property
     def RotationWorld(self) -> glm.quat:
         """World rotation of this space."""
         return (self._Parent.RotationWorld if self._Parent else glm.quat()) * self._RotationLocal
+
     @RotationWorld.setter
     def RotationWorld(self, value:glm.quat) -> None:
         self._RotationLocal = self._Parent.RotationWorldInverse if self._Parent else glm.quat() * value
+
     @property
     def RotationWorldInverse(self) -> glm.quat:
         """World inverse rotation of this space."""
         return glm.inverse(self._Parent.RotationWorld if self._Parent else glm.quat()) * self._RotationLocal
 
+
     @property
     def ScaleLocal(self) -> glm.vec3:
         """Local scale of the space."""
         return glm.vec3(self._ScaleLocal)
+
     @ScaleLocal.setter
     def ScaleLocal(self, value:glm.vec3) -> None:
         self._ScaleLocal = glm.vec3(value)
         self.__isOutdatedLocal = True
+
     @property
     def ScaleWorld(self) -> glm.vec3:
         """World scale of the space."""
-        return (self._Parent.ScaleWorld if self._Parent else glm.quat()) * self._ScaleLocal
+        return (self._Parent.ScaleWorld if self._Parent else glm.vec3(1)) * self._ScaleLocal
+
     @ScaleWorld.setter
     def ScaleWorld(self, value:glm.vec3) -> None:
         self._ScaleLocal = self._Parent.ScaleWorldInverse if self._Parent else glm.vec3(1) * value
+
     @property
     def ScaleWorldInverse(self) -> glm.vec3:
         """World inverse scale of the space."""
@@ -132,7 +151,7 @@ class Transform:
         self._Parent:"Transform" = None
         self._Children:list["Transform"] = []
 
-        self._Position = glm.vec3(position)
+        self._PositionLocal = glm.vec3(position)
         self._ScaleLocal = glm.vec3(scale)
         self._RotationLocal = glm.quat(rotation)
         self.__isOutdatedLocal = True
@@ -142,7 +161,7 @@ class Transform:
 
     def __str__(self) -> str:
         return (f"Name: {self._Name}"
-            + f"\nPos: {self._Position}"
+            + f"\nPos: {self._PositionLocal}"
             + f"\nRot: {self.RotationLocal}"
             + f"\nScale: {self._ScaleLocal}"
             + f"\nChildren: {len(self._Children)}"
@@ -158,7 +177,7 @@ class Transform:
 
     def resetPosition(self, recursive:bool = False) -> "Transform":
         """Resets the position to 0,0,0"""
-        self.Position = (0,0,0)
+        self.PositionLocal = (0,0,0)
         if recursive:
             for child in self._Children:
                 child.resetPosition(recursive=True)
@@ -246,7 +265,7 @@ class Transform:
             node._Parent = self
 
             # correct Rotation
-            if keepPosition: node.Position = self.SpaceWorldInverse * node.Position
+            if keepPosition: node.PositionLocal = self.SpaceWorldInverse * node.PositionLocal
             if keepRotation: node.RotationLocal = self.RotationWorldInverse * node.RotationLocal
             if keepScale: node.ScaleLocal = self.ScaleWorldInverse * node.ScaleLocal
         return self
@@ -262,7 +281,7 @@ class Transform:
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
 
         # correct properties
-        if keepPosition: node.Position = self.SpaceWorld * node.Position
+        if keepPosition: node.PositionLocal = self.SpaceWorld * node.PositionLocal
         if keepRotation: node.RotationLocal = self.RotationWorld * node.RotationLocal
         if keepScale: node.ScaleLocal = self.ScaleWorld * node.ScaleLocal
 
@@ -297,12 +316,12 @@ class Transform:
         If a position is given, the position is before values are modified.
 
         Returns itself."""
-        self.Position += position
+        self.PositionLocal += position
 
         for child in self.Children:
-            child.Position = self.Position + child.Position
+            child.PositionLocal = self.PositionLocal + child.PositionLocal
 
-        self.Position = glm.vec3()
+        self.PositionLocal = glm.vec3()
         return self
 
     def applyRotation(self, rotation:glm.quat = glm.quat(), recursive:bool = False, includeLocal:bool = False) -> "Transform":
@@ -316,10 +335,10 @@ class Transform:
         # define rotation change
         self.RotationLocal *= rotation
         if includeLocal:
-            self.Position = self.RotationLocal * self.Position
+            self.PositionLocal = self.RotationLocal * self.PositionLocal
 
         for child in self.Children:
-            child.Position = self.RotationLocal * child.Position
+            child.PositionLocal = self.RotationLocal * child.PositionLocal
             child.RotationLocal = self.RotationLocal * child.RotationLocal
 
             # may do it recursively
@@ -338,11 +357,11 @@ class Transform:
         Returns itself."""
         self.ScaleLocal *= scale
         if includeLocal:
-            self.Position *= self.ScaleLocal
+            self.PositionLocal *= self.ScaleLocal
 
         # keep space for children
         for child in self.Children:
-            child.Position *= self.ScaleLocal
+            child.PositionLocal *= self.ScaleLocal
             child.ScaleLocal *= self.ScaleLocal
 
             # may do it recursively
