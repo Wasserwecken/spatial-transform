@@ -205,6 +205,7 @@ class Transform:
 
         If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
         self.RotationLocal = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
+        return self
 
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
@@ -294,64 +295,86 @@ class Transform:
         return self
 
 
-    def applyPosition(self, position:glm.vec3 = glm.vec3()) -> "Transform":
-        """Resets the position of this transform for (0,0,0) and updates its children to keep them spatial unchanged.
+    def applyPosition(self, position:glm.vec3 = None, recursive:bool = False) -> "Transform":
+        """Changes the position of this transform and updates its children to keep them spatial unchanged.
 
-        If a position is given, the position is before values are modified.
+        If position is NOT set, the transform resets its own position to (0, 0, 0).
+
+        If position IS set, the given position is added to the current position.
 
         Returns itself."""
-        self.PositionLocal += position
+        # define positional change
+        change = -self.PositionLocal if position is None else position
+        changeInverse = glm.inverse(self.RotationLocal) * (glm.div(1, self.ScaleLocal) * -change)
 
+        # apply changes to itself
+        self.PositionLocal += change
+
+        # apply changes to children
         for child in self.Children:
-            child.PositionLocal = self.PositionLocal + child.PositionLocal
+            child.PositionLocal = changeInverse + child.PositionLocal
 
-        self.PositionLocal = glm.vec3()
+            # may do it recursively
+            if recursive: child.applyRotation(position, recursive=True)
+
         return self
 
-    def applyRotation(self, rotation:glm.quat = glm.quat(), recursive:bool = False, includeLocal:bool = False) -> "Transform":
-        """Resets the rotation of this transform and updates its children to keep them spatial unchanged.
+    def applyRotation(self, rotation:glm.quat = None, recursive:bool = False, includeLocal:bool = False) -> "Transform":
+        """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
 
-        If rotation is set, the transform is rotated before values are modified.
+        If rotation is NOT set, the transform resets its own rotation to (1, 0, 0, 0).
+
+        If rotation IS set, the given rotation is added to the current rotation.
 
         if includeLocal is true, the transforms also rotates its own local position.
 
         Returns itself."""
-        # define rotation change
-        self.RotationLocal *= rotation
-        if includeLocal:
-            self.PositionLocal = self.RotationLocal * self.PositionLocal
+        # define rotational change
+        change = glm.inverse(self.RotationLocal) if rotation is None else rotation
+        changeInverse = glm.inverse(change)
 
+        # apply changes to itself
+        self.RotationLocal = self.RotationLocal * change
+        if includeLocal:
+            self.PositionLocal = self.RotationLocal * change
+
+        # apply changes to children
         for child in self.Children:
-            child.PositionLocal = self.RotationLocal * child.PositionLocal
-            child.RotationLocal = self.RotationLocal * child.RotationLocal
+            child.PositionLocal = changeInverse * child.PositionLocal
+            child.RotationLocal = changeInverse * child.RotationLocal
 
             # may do it recursively
-            if recursive: child.applyRotation(recursive=True, includeLocal=False)
+            if recursive: child.applyRotation(rotation, recursive=True, includeLocal=False)
 
-        self.RotationLocal = glm.quat()
         return self
 
     def appyScale(self, scale:glm.vec3 = glm.vec3(1), recursive:bool = False, includeLocal:bool = False) -> "Transform":
-        """Resets the scale of the transform to (1,1,1) and updates its children to keep them spatial unchanged.
+        """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
-        if scale is set, the transform is scaled before values are modified.
+        If scale is NOT set, the transform resets its own scale to (1, 1, 1).
+
+        If scale IS set, the given scale is added to the current scale.
 
         if includeLocal is true, the transforms also scales its own local position.
 
         Returns itself."""
-        self.ScaleLocal *= scale
+        # define change in scale
+        change = glm.div(1, self.ScaleLocal) if scale is None else scale
+        changeInverse = glm.div(1, change)
+
+        # apply changes to itself
+        self.ScaleLocal *= change
         if includeLocal:
-            self.PositionLocal *= self.ScaleLocal
+            self.PositionLocal *= change
 
         # keep space for children
         for child in self.Children:
-            child.PositionLocal *= self.ScaleLocal
-            child.ScaleLocal *= self.ScaleLocal
+            child.PositionLocal *= changeInverse
+            child.ScaleLocal *= changeInverse
 
             # may do it recursively
-            if recursive: child.appyScale(recursive=True, includeLocal=False)
+            if recursive: child.appyScale(scale, recursive=True, includeLocal=False)
 
-        self.ScaleLocal = glm.vec3(1)
         return self
 
 
