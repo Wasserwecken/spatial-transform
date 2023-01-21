@@ -221,7 +221,7 @@ class Transform:
         """Returns the current Rotation as euler angles in the given order.
 
         If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
-        return glm.degrees(Euler.fromQuatTo(self.RotationLocal, order))
+        return glm.degrees(Euler.fromQuatTo(self.RotationLocal, order, extrinsic))
 
     def setEuler(self, degrees:glm.vec3, order:str = 'ZXY', extrinsic:bool = True) -> "Transform":
         """Converts the given euler anlges to quaternion and sets the rotation property.
