@@ -79,8 +79,7 @@ class Transform:
     @property
     def RotationWorldInverse(self) -> glm.quat:
         """World inverse rotation of this space."""
-        parentSapce = self._Parent.RotationWorld if self._Parent else glm.quat()
-        return glm.inverse(parentSapce) * self._RotationLocal
+        return glm.inverse(self.RotationWorld)
 
 
     @property
@@ -105,8 +104,7 @@ class Transform:
     @property
     def ScaleWorldInverse(self) -> glm.vec3:
         """World inverse scale of the space."""
-        parentSpace = self._Parent.ScaleWorld if self._Parent else glm.vec3(1)
-        return glm.div(1, parentSpace) * self._ScaleLocal
+        return glm.div(1, self.ScaleWorld)
 
 
     @property
@@ -171,7 +169,7 @@ class Transform:
         )
 
     def reset(self, recursive:bool = False) -> "Transform":
-        """Resets the whole transform to pos: (0,0,0) scale: (1,1,1) and no rotation"""
+        """Resets the whole transform to pos: (0,0,0) scale: (1,1,1) and no rotation."""
         self.SpaceLocal = glm.mat4()
         if recursive:
             for child in self._Children:
@@ -179,7 +177,7 @@ class Transform:
         return self
 
     def resetPosition(self, recursive:bool = False) -> "Transform":
-        """Resets the position to 0,0,0"""
+        """Resets the position to (0,0,0)."""
         self.PositionLocal = (0,0,0)
         if recursive:
             for child in self._Children:
@@ -187,7 +185,7 @@ class Transform:
         return self
 
     def resetRotation(self, recursive:bool = False) -> "Transform":
-        """Resets rotation"""
+        """Resets rotation."""
         self.RotationLocal = glm.quat()
         if recursive:
             for child in self._Children:
@@ -195,28 +193,28 @@ class Transform:
         return self
 
     def resetScale(self, recursive:bool = False) -> "Transform":
-        """Resets scale to 1,1,1"""
+        """Resets scale to (1,1,1)."""
         self.ScaleLocal = (1,1,1)
         if recursive:
             for child in self._Children:
                 child.resetScale(recursive=True)
         return self
 
-    def pointToWorld(self, point:glm.vec3 = glm.vec3(0)) -> glm.vec3:
-        """Transforms a given point in this local space to world space"""
+    def pointToWorld(self, point:glm.vec3) -> glm.vec3:
+        """Transforms a given point in this local space to world space."""
         return self.SpaceWorld * point
 
     def pointToLocal(self, point:glm.vec3) -> glm.vec3:
-        """Transforms a given point in world space to this local space"""
+        """Transforms a given point in world space to this local space."""
         return self.SpaceWorldInverse * point
 
 
     def directionToWorld(self, direction:glm.vec3) -> glm.vec3:
-        """Transforms a given direction in this local space to world space"""
+        """Transforms a given direction in this local space to world space."""
         return self.RotationWorld * direction
 
     def directionToLocal(self, direction:glm.vec3) -> glm.vec3:
-        """Transforms a given direction in world space to this local space"""
+        """Transforms a given direction in world space to this local space."""
         return self.RotationWorldInverse * direction
 
 
@@ -237,15 +235,18 @@ class Transform:
         """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Returns the transform itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0,1,0)))
-        self._RotationLocal = glm.quatLookAtRH(direction, up if dirDot < 0.999 else glm.vec3(1,0,0))
+        upAxis = up if dirDot < 0.999 else glm.vec3(1,0,0)
+
+        self._RotationLocal = glm.quatLookAtRH(direction, upAxis)
         self.__isOutdatedLocal = True
         return self
 
     def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
         """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space Returns the transform itself."""
-        parentSpace = (self._Parent.SpaceWorld if self._Parent else glm.mat4())
-        self.lookAtLocal(glm.inverse(parentSpace) * direction, up)
-        return self
+        worldRotationInverse = (self._Parent.RotationWorldInverse if self._Parent else glm.mat4())
+        direction = worldRotationInverse * direction
+
+        return self.lookAtLocal(direction, up)
 
 
     def attach(self, *nodes:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
