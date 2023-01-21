@@ -116,7 +116,7 @@ root.directionToLocal((2,3,4))
 from SpatialTransform import Transform
 
 # because almost every method on the "Transform" object returns itself,
-# the previous code of creating and attching can also be written like:
+# the previous code of creating and attaching can also be written like:
 hips = Transform('Hips', position=(0,2,0)).attach(
     Transform('LeftLegUpper', position=(+0.2,0,0)).attach(
         Transform('LeftLegLower', position=(0,-1,0)).attach(
@@ -131,7 +131,7 @@ hips = Transform('Hips', position=(0,2,0)).attach(
 )
 
 # multiple actions on a transform can be performed on a single line
-hips.setEuler((0, 180, 0)).applyRotation().ScaleWorld = 0.1
+feets = hips.setEuler((0, 180, 0)).applyRotation().filter('Foot')
 
 # show the created hierarchy
 hips.printTree()
