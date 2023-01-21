@@ -312,7 +312,7 @@ class Transform:
 
         # apply changes to children
         for child in self.Children:
-            child.PositionLocal = changeInverse + child.PositionLocal
+            child.PositionLocal += changeInverse
 
             # may do it recursively
             if recursive: child.applyRotation(position, recursive=True)
@@ -365,7 +365,7 @@ class Transform:
         # apply changes to itself
         self.ScaleLocal *= change
         if includeLocal:
-            self.PositionLocal *= change
+            self.PositionLocal *= changeInverse
 
         # keep space for children
         for child in self.Children:
