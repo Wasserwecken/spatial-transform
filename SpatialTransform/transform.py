@@ -3,6 +3,7 @@ import glm
 import random
 import string
 from .euler import Euler
+
 class Transform:
     """Spatial definition of an linear space with position, rotation and scale.
 
@@ -10,7 +11,7 @@ class Transform:
 
     @property
     def Name(self) -> str:
-        """Name of this transform. Does not affect anything."""
+        """Name of the transform."""
         return self._Name
     @Name.setter
     def Name(self, value:str) -> None:
@@ -19,7 +20,7 @@ class Transform:
 
     @property
     def SpaceLocal(self) -> glm.mat4:
-        """Space of this transform without respect to its parent."""
+        """Transform space without respect to its parent."""
         if self.__isOutdatedLocal:
             self._SpaceLocal = glm.translate(self._PositionLocal)
             self._SpaceLocal = glm.scale(self._SpaceLocal, self._ScaleLocal)
@@ -28,11 +29,11 @@ class Transform:
         return glm.mat4(self._SpaceLocal)
     @property
     def SpaceWorld(self) -> glm.mat4:
-        """Space of this with respect to its parent"""
+        """Space of the transform with respect to its parent."""
         return (self._Parent.SpaceWorld if self._Parent else glm.mat4()) * self.SpaceLocal
     @property
     def SpaceWorldInverse(self) -> glm.mat4:
-        """Space of this transform with respect to its parent. Projects items to this local space."""
+        """Space of the transform with respect to its parent. Projects items to the local space."""
         return glm.inverse(self.SpaceWorld)
 
 
@@ -40,7 +41,6 @@ class Transform:
     def PositionLocal(self) -> glm.vec3:
         """Local position of the space."""
         return glm.vec3(self._PositionLocal)
-
     @PositionLocal.setter
     def PositionLocal(self, value:glm.vec3) -> None:
         self._PositionLocal = glm.vec3(value)
@@ -49,18 +49,18 @@ class Transform:
     @property
     def PositionWorld(self) -> glm.vec3:
         """World position of this space."""
-        return (self._Parent.SpaceWorld if self._Parent else glm.mat4()) * self._PositionLocal
-
+        parentSpace = self._Parent.SpaceWorld if self._Parent else glm.mat4()
+        return parentSpace * self._PositionLocal
     @PositionWorld.setter
     def PositionWorld(self, value:glm.vec3) -> None:
-        self._PositionLocal = (self._Parent.SpaceWorldInverse if self._Parent else glm.mat4()) * value
+        parentSpaceInverse = self._Parent.SpaceWorldInverse if self._Parent else glm.mat4()
+        self._PositionLocal = parentSpaceInverse * value
 
 
     @property
     def RotationLocal(self) -> glm.quat:
         """Local rotation of this space."""
         return glm.quat(self._RotationLocal)
-
     @RotationLocal.setter
     def RotationLocal(self, value:glm.quat) -> None:
         self._RotationLocal = glm.quat(value)
@@ -69,23 +69,24 @@ class Transform:
     @property
     def RotationWorld(self) -> glm.quat:
         """World rotation of this space."""
-        return (self._Parent.RotationWorld if self._Parent else glm.quat()) * self._RotationLocal
-
+        parentSpace = self._Parent.RotationWorld if self._Parent else glm.quat()
+        return parentSpace * self._RotationLocal
     @RotationWorld.setter
     def RotationWorld(self, value:glm.quat) -> None:
-        self._RotationLocal = self._Parent.RotationWorldInverse if self._Parent else glm.quat() * value
+        parentSpaceInverse = self._Parent.RotationWorldInverse if self._Parent else glm.quat()
+        self._RotationLocal = parentSpaceInverse * value
 
     @property
     def RotationWorldInverse(self) -> glm.quat:
         """World inverse rotation of this space."""
-        return glm.inverse(self._Parent.RotationWorld if self._Parent else glm.quat()) * self._RotationLocal
+        parentSapce = self._Parent.RotationWorld if self._Parent else glm.quat()
+        return glm.inverse(parentSapce) * self._RotationLocal
 
 
     @property
     def ScaleLocal(self) -> glm.vec3:
         """Local scale of the space."""
         return glm.vec3(self._ScaleLocal)
-
     @ScaleLocal.setter
     def ScaleLocal(self, value:glm.vec3) -> None:
         self._ScaleLocal = glm.vec3(value)
@@ -94,45 +95,47 @@ class Transform:
     @property
     def ScaleWorld(self) -> glm.vec3:
         """World scale of the space."""
-        return (self._Parent.ScaleWorld if self._Parent else glm.vec3(1)) * self._ScaleLocal
-
+        parentSpace = self._Parent.ScaleWorld if self._Parent else glm.vec3(1)
+        return parentSpace * self._ScaleLocal
     @ScaleWorld.setter
     def ScaleWorld(self, value:glm.vec3) -> None:
-        self._ScaleLocal = self._Parent.ScaleWorldInverse if self._Parent else glm.vec3(1) * value
+        parentSpaceInverse =self._Parent.ScaleWorldInverse if self._Parent else glm.vec3(1)
+        self._ScaleLocal = parentSpaceInverse * value
 
     @property
     def ScaleWorldInverse(self) -> glm.vec3:
         """World inverse scale of the space."""
-        return (glm.div(1, self._Parent.ScaleWorld) if self._Parent else glm.vec3(1)) * self._ScaleLocal
+        parentSpace = self._Parent.ScaleWorld if self._Parent else glm.vec3(1)
+        return glm.div(1, parentSpace) * self._ScaleLocal
 
 
     @property
     def ForwardLocal(self) -> glm.vec3:
-        """Current local Rotation of the Z-Axis"""
+        """Current local rotation of the Z-axis."""
         return self._RotationLocal * (0,0,-1)
     @property
     def ForwardWorld(self) -> glm.vec3:
-        """Current Rotation of the Z-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (0,0,-1,0)).xyz
+        """Current rotation of the Z-axis in world space."""
+        return (self.RotationWorld * (0,0,-1,0)).xyz
 
     @property
     def RightLocal(self) -> glm.vec3:
-        """Current local Rotation of the X-Axis"""
+        """Current local rotation of the X-axis."""
         return self._RotationLocal * (1,0,0)
     @property
     def RightWorld(self) -> glm.vec3:
-        """Current Rotation of the X-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (1,0,0,0)).xyz
+        """Current rotation of the X-axis in world space."""
+        return (self.RotationWorld * (1,0,0,0)).xyz
 
 
     @property
     def UpLocal(self) -> glm.vec3:
-        """Current local Rotation of the Y-Axis"""
+        """Current local rotation of the Y-axis."""
         return self._RotationLocal * (0,1,0)
     @property
     def UpWorld(self) -> glm.vec3:
-        """Current Rotation of the Y-Axis in world space"""
-        return glm.normalize(self.SpaceWorld * (0,1,0,0)).xyz
+        """Current rotation of the Y-axis in world space."""
+        return (self.RotationWorld * (0,1,0,0)).xyz
 
 
     @property
