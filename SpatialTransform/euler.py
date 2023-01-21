@@ -12,7 +12,7 @@ class Euler:
         """List of possible rotation orders in 3D space."""
         return list(['XYZ', 'XZY', 'YXZ', 'YZX', 'ZXY', 'ZYX'])
 
-    def toQuatFrom(radians:glm.vec3, order:str, extrinsic:bool) -> glm.quat:
+    def toQuatFrom(radians:glm.vec3, order:str = 'ZXY', extrinsic:bool = True) -> glm.quat:
         """Converts euler angles to quaternion.
 
         Rotation order of eulers must be given as 'XYZ' in any order.
@@ -30,7 +30,7 @@ class Euler:
 
         return result
 
-    def toMatFrom(radians:glm.vec3, order:str, extrinsic:bool) -> glm.mat3:
+    def toMatFrom(radians:glm.vec3, order:str = 'ZXY', extrinsic:bool = True) -> glm.mat3:
         """Converts euler angles to 3x3 rotation matrix.
 
         Rotation order of eulers must be given as 'XYZ' in any order.
@@ -39,7 +39,7 @@ class Euler:
         return glm.mat3_cast(Euler.toQuatFrom(radians, order, extrinsic))
 
 
-    def fromQuatTo(quat:glm.quat, order:str, extrinsic:bool) -> glm.vec3:
+    def fromQuatTo(quat:glm.quat, order:str = 'ZXY', extrinsic:bool = True) -> glm.vec3:
         """Converts a quaternion to intrinsic euler angles as radians.
 
         Rotation order of eulers must be given as 'XYZ' in any order.
@@ -47,7 +47,7 @@ class Euler:
         If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
         return Euler.fromMatTo(glm.mat3_cast(quat), order, extrinsic)
 
-    def fromMatTo(mat:glm.mat3, order:str, extrinsic:bool) -> glm.vec3:
+    def fromMatTo(mat:glm.mat3, order:str = 'ZXY', extrinsic:bool = True) -> glm.vec3:
         """Converts a 3x3 rotation matrix to intrinsic euler angles as radians.
 
         Rotation order of eulers must be given as 'XYZ' in any order.
