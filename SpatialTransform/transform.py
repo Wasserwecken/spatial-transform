@@ -210,11 +210,11 @@ class Transform:
 
     def directionToWorld(self, direction:glm.vec3) -> glm.vec3:
         """Transforms a given direction in this local space to world space"""
-        return glm.quat(self.SpaceWorld) * direction
+        return self.RotationWorld * direction
 
     def directionToLocal(self, direction:glm.vec3) -> glm.vec3:
         """Transforms a given direction in world space to this local space"""
-        return glm.quat(self.SpaceWorldInverse) * direction
+        return self.RotationWorldInverse * direction
 
 
     def getEuler(self, order:str = 'ZXY', extrinsic:bool = True) -> glm.vec3:
