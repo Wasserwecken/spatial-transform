@@ -176,30 +176,6 @@ class Transform:
                 child.reset(recursive=True)
         return self
 
-    def resetPosition(self, recursive:bool = False) -> "Transform":
-        """Resets the position to (0,0,0)."""
-        self.PositionLocal = (0,0,0)
-        if recursive:
-            for child in self._Children:
-                child.resetPosition(recursive=True)
-        return self
-
-    def resetRotation(self, recursive:bool = False) -> "Transform":
-        """Resets rotation."""
-        self.RotationLocal = glm.quat()
-        if recursive:
-            for child in self._Children:
-                child.resetRotation(recursive=True)
-        return self
-
-    def resetScale(self, recursive:bool = False) -> "Transform":
-        """Resets scale to (1,1,1)."""
-        self.ScaleLocal = (1,1,1)
-        if recursive:
-            for child in self._Children:
-                child.resetScale(recursive=True)
-        return self
-
     def pointToWorld(self, point:glm.vec3) -> glm.vec3:
         """Transforms a given point in this local space to world space."""
         return self.SpaceWorld * point
