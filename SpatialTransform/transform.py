@@ -319,7 +319,7 @@ class Transform:
 
         return self
 
-    def applyRotation(self, rotation:glm.quat = None, recursive:bool = False, includeLocal:bool = False) -> "Transform":
+    def applyRotation(self, rotation:glm.quat = None, recursive:bool = False) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
 
         If rotation is NOT set, the transform resets its own rotation to (1, 0, 0, 0).
@@ -335,8 +335,6 @@ class Transform:
 
         # apply changes to itself
         self.RotationLocal = self.RotationLocal * change
-        if includeLocal:
-            self.PositionLocal = self.RotationLocal * change
 
         # apply changes to children
         for child in self.Children:
@@ -344,11 +342,11 @@ class Transform:
             child.RotationLocal = changeInverse * child.RotationLocal
 
             # may do it recursively
-            if recursive: child.applyRotation(rotation, recursive=True, includeLocal=False)
+            if recursive: child.applyRotation(rotation, recursive=True)
 
         return self
 
-    def appyScale(self, scale:glm.vec3 = glm.vec3(1), recursive:bool = False, includeLocal:bool = False) -> "Transform":
+    def appyScale(self, scale:glm.vec3 = glm.vec3(1), recursive:bool = False) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
         If scale is NOT set, the transform resets its own scale to (1, 1, 1).
@@ -364,8 +362,6 @@ class Transform:
 
         # apply changes to itself
         self.ScaleLocal *= change
-        if includeLocal:
-            self.PositionLocal *= changeInverse
 
         # keep space for children
         for child in self.Children:
@@ -373,7 +369,7 @@ class Transform:
             child.ScaleLocal *= changeInverse
 
             # may do it recursively
-            if recursive: child.appyScale(scale, recursive=True, includeLocal=False)
+            if recursive: child.appyScale(scale, recursive=True)
 
         return self
 
