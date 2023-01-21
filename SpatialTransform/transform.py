@@ -232,7 +232,9 @@ class Transform:
 
 
     def lookAtLocal(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space. Returns the transform itself."""
+        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space.
+
+        Returns the transform itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0,1,0)))
         upAxis = up if dirDot < 0.999 else glm.vec3(1,0,0)
@@ -242,14 +244,16 @@ class Transform:
         return self
 
     def lookAtWorld(self, direction:glm.vec3, up:glm.vec3 = glm.vec3(0,1,0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space Returns the transform itself."""
-        worldRotationInverse = (self._Parent.RotationWorldInverse if self._Parent else glm.mat4())
-        direction = worldRotationInverse * direction
+        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space.
+
+        Returns the transform itself."""
+        parentWorldRotationInverse = (self._Parent.RotationWorldInverse if self._Parent else glm.mat4())
+        direction = parentWorldRotationInverse * direction
 
         return self.lookAtLocal(direction, up)
 
 
-    def attach(self, *nodes:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
+    def attach(self, *nodes:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
@@ -274,7 +278,7 @@ class Transform:
             if keepScale: node.ScaleLocal = self.ScaleWorldInverse * node.ScaleLocal
         return self
 
-    def detach(self, node:"Transform", keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
+    def detach(self, node:"Transform", keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Detachs the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
@@ -294,7 +298,7 @@ class Transform:
         node._Parent = None
         return self
 
-    def clearParent(self, keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
+    def clearParent(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """Detaches/detachs itself from the parent.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -303,7 +307,7 @@ class Transform:
         if self._Parent is not None: self._Parent.detach(self, keepPosition, keepRotation, keepScale)
         return self
 
-    def clearChildren(self, keepPosition:bool = True, keepRotation:bool = True, keepScale:bool = True) -> "Transform":
+    def clearChildren(self, keepPosition:bool = False, keepRotation:bool = False, keepScale:bool = False) -> "Transform":
         """detachs all children of this transform.
 
         If keep***** is true, the given transform will be modified to keep its world property.
@@ -329,7 +333,7 @@ class Transform:
         return self
 
     def applyRotation(self, rotation:glm.quat = glm.quat(), recursive:bool = False, includeLocal:bool = False) -> "Transform":
-        """Resets the rotation of this transform for (0,0,-1) and updates its children to keep them spatial unchanged.
+        """Resets the rotation of this transform and updates its children to keep them spatial unchanged.
 
         If rotation is set, the transform is rotated before values are modified.
 
@@ -376,7 +380,7 @@ class Transform:
 
 
     def layout(self, index:int = 0, depth:int = 0) -> list[tuple["Transform", int, int]]:
-        """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth"""
+        """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth."""
         result = [[self, index, depth]]
         for child in self.Children:
             result.extend(child.layout(result[-1][1] + 1, depth + 1))
@@ -385,8 +389,7 @@ class Transform:
     def printTree(self, markerStr="+- ", levelMarkers=[]) -> None:
         # src: https://simonhessner.de/python-3-recursively-print-structured-tree-including-hierarchy-markers-using-depth-first-search/
         """
-        Recursive function that prints the hierarchical structure of a tree including markers that indicate
-        parent-child relationships between nodes.
+        Recursive function that prints the hierarchical structure of a tree including markers that indicate parent-child relationships between nodes.
 
         Parameters:
         - root: Node instance, possibly containing children Nodes
