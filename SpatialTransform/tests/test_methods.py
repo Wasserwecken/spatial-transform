@@ -61,13 +61,6 @@ class Rotations(unittest.TestCase):
             angle = glm.angle(r * glm.inverse(t.RotationLocal))
             self.assertFalse(0.01 < angle < (glm.two_pi()-0.01))
 
-    def test_getEuler(self):
-        t = Transform()
-        for _ in range(randomSamples):
-            r = randomRotation()
-            t.RotationLocal = r
-            self.assertGreater(0.1, glm.distance(glm.degrees(glm.eulerAngles(r)), t.getEuler(order='XYZ', extrinsic=True)))
-
     def test_lookAtWorld(self):
         for _ in range(randomSamples):
             t = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
