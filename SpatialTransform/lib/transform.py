@@ -104,7 +104,7 @@ class Transform:
     @property
     def ScaleWorldInverse(self) -> glm.vec3:
         """World inverse scale of the space."""
-        return glm.div(1, self.ScaleWorld)
+        return (1.0 / self.ScaleWorld)
 
 
     @property
@@ -310,7 +310,7 @@ class Transform:
         Returns itself."""
         # define positional change
         change = -self.PositionLocal if position is None else position
-        changeInverse = glm.inverse(self.RotationLocal) * (glm.div(1, self.ScaleLocal) * -change)
+        changeInverse = glm.inverse(self.RotationLocal) * ((1.0 / self.ScaleLocal) * -change)
 
         # apply changes to itself
         self.PositionLocal += change
@@ -362,8 +362,8 @@ class Transform:
 
         Returns itself."""
         # define change in scale
-        change = glm.div(1, self.ScaleLocal) if scale is None else scale
-        changeInverse = glm.div(1, change)
+        change = (1.0 / self.ScaleLocal) if scale is None else scale
+        changeInverse = (1.0 / change)
 
         # apply changes to itself
         self.ScaleLocal *= change
