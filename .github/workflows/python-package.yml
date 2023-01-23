@@ -1,6 +1,10 @@
 name: Python package
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'master'
+      - 'preview'
 
 jobs:
   build:
@@ -39,19 +43,28 @@ jobs:
         run: python -m build
 
       - name: Release on GitHub
-              uses: softprops/action-gh-release@v1
-              with:
-                files: |
-                  SpatialTransform/*
-                  readme.md
-                  changelog.md
-                  LICENSE
-                body_path: CHANGELOG.md
-                draft: false
-                prerelease: false
-                fail_on_unmatched_files: true
+        if: github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            SpatialTransform/*
+            readme.md
+            changelog.md
+            LICENSE
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
 
-      - name: Publish package
+      - name: Publish package PyPI
+        if: github.ref == 'refs/heads/master'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Publish package to TestPyPI
+        if: github.ref == 'refs/heads/preview'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/project/spatial-transform/
