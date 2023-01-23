@@ -1,2 +1,2 @@
-from .transform import Transform
-from .euler import Euler
+from .lib.transform import Transform
+from .lib.euler import Euler
