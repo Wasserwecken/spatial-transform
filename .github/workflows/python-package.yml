@@ -67,4 +67,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/project/spatial-transform/
+          repository_url: https://test.pypi.org/legacy/
