@@ -1,6 +1,5 @@
 import math
 import glm
-import numpy
 
 #https://en.wikipedia.org/wiki/Euler_angles
 class Euler:
