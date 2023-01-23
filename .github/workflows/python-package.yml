@@ -5,8 +5,7 @@ on:
     tags:
       - '*'
     branches:
-      - 'main'
-      - 'preview'
+      - '!dev'
 
 jobs:
   build:
