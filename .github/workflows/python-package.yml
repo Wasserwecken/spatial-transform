@@ -3,7 +3,7 @@ name: Python package
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'preview'
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
         run: python -m build
 
       - name: Release on GitHub
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -57,7 +57,7 @@ jobs:
           fail_on_unmatched_files: true
 
       - name: Publish package PyPI
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
