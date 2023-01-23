@@ -5,7 +5,7 @@ on:
     tags:
       - '*'
     branches:
-      - '!dev'
+      - 'main'
 
 jobs:
   build:
@@ -49,7 +49,7 @@ jobs:
         run: python -m build
 
       - name: Release on GitHub
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -63,13 +63,13 @@ jobs:
           fail_on_unmatched_files: true
 
       - name: Publish package PyPI
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Publish package to TestPyPI
-        if: github.ref == 'refs/heads/preview'
+        # if: github.ref == 'refs/heads/preview'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
