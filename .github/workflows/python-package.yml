@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Check tag condition
+        if: startsWith(github.ref, 'refs/tags/')
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
