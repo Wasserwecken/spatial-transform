@@ -1,4 +1,6 @@
-> This is under active development and changes can appear at anypoint. Feel free to create issues. If other people start using this i will start creating tests and a branching strategy. This package is created for my master thesis and aims for integrety but not for performance.
+
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # spatial-transform
 Lightweight libary for creating spatial space hierarchies, to have diffrent rotations, scale and positions which also rely on their parent transforms. This is inteded to be used like transform objects in game engines like Unity or Unreal. The package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used for the matrix, quaternion and vector calculations.
