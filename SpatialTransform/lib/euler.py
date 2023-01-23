@@ -1,5 +1,6 @@
 import math
 import glm
+import numpy
 
 #https://en.wikipedia.org/wiki/Euler_angles
 class Euler:
@@ -70,19 +71,19 @@ def fromMatToXZY(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
         math.atan2(mat[1,2], mat[1,1]),
         math.atan2(mat[2,0], mat[0,0]),
-        math.atan2(-mat[1,0], math.sqrt(1 - mat[1,0]**2)),
+        math.atan2(-mat[1,0], math.sqrt(1 - min(1, mat[1,0]**2, 1))),
     )
 
 def fromMatToXYZ(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
         math.atan2(-mat[2,1], mat[2,2]),
-        math.atan2(mat[2,0], math.sqrt(1 - mat[2,0]**2)),
+        math.atan2(mat[2,0], math.sqrt(1 - min(1, mat[2,0]**2, 1))),
         math.atan2(-mat[1,0], mat[0,0]),
     )
 
 def fromMatToYXZ(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
-        math.atan2(-mat[2,1], math.sqrt(1 - mat[2,1]**2)),
+        math.atan2(-mat[2,1], math.sqrt(1 - min(1, mat[2,1]**2, 1))),
         math.atan2(mat[2,0], mat[2,2]),
         math.atan2(mat[0,1], mat[1,1]),
     )
@@ -91,19 +92,19 @@ def fromMatToYZX(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
         math.atan2(-mat[2,1], mat[1,1]),
         math.atan2(-mat[0,2], mat[0,0]),
-        math.atan2(mat[0,1], math.sqrt(1 - mat[0,1]**2)),
+        math.atan2(mat[0,1], math.sqrt(1 - min(1, mat[0,1]**2, 1))),
     )
 
 def fromMatToZYX(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
         math.atan2(mat[1,2], mat[2,2]),
-        math.atan2(-mat[0,2], math.sqrt(1 - mat[0,2]**2)),
+        math.atan2(-mat[0,2], math.sqrt(1 - min(1, mat[0,2]**2, 1))),
         math.atan2(mat[0,1], mat[0,0]),
     )
 
 def fromMatToZXY(mat:glm.mat3) -> glm.vec3:
     return glm.vec3(
-        math.atan2(mat[1,2], math.sqrt(1 - mat[1,2]**2)),
+        math.atan2(mat[1,2], math.sqrt(1 - min(1, mat[1,2]**2, 1))),
         math.atan2(-mat[0,2], mat[2,2]),
         math.atan2(-mat[1,0], mat[1,1]),
     )
