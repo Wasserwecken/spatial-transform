@@ -170,7 +170,10 @@ class Transform:
 
     def reset(self, recursive:bool = False) -> "Transform":
         """Resets the whole transform to pos: (0,0,0) scale: (1,1,1) and no rotation."""
-        self.SpaceLocal = glm.mat4()
+        self._SpaceLocal = glm.mat4()
+        self._PositionLocal = glm.vec3(0)
+        self._RotationLocal = glm.quat()
+        self._ScaleLocal = glm.vec3(1)
         if recursive:
             for child in self._Children:
                 child.reset(recursive=True)
@@ -240,6 +243,7 @@ class Transform:
             # validate given joint
             if node is None: raise ValueError(f'Given joint value is None')
             if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
+            if node in self._Children: return self
 
             # detach
             if node._Parent is not None:
@@ -264,6 +268,7 @@ class Transform:
         # validate given joint
         if node is None: raise ValueError(f'Given joint value is None')
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
+        if node not in self._Children: return self
 
         # correct properties
         if keepPosition: node.PositionLocal = self.SpaceWorld * node.PositionLocal
@@ -290,8 +295,8 @@ class Transform:
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
-        for child in self.Children:
-            self.detach(child, keepPosition, keepRotation, keepScale)
+        for i in reversed(range(len(self._Children))):
+            self.detach(self._Children[i], keepPosition, keepRotation, keepScale)
         return self
 
 
@@ -346,7 +351,7 @@ class Transform:
 
         return self
 
-    def appyScale(self, scale:glm.vec3 = glm.vec3(1), recursive:bool = False) -> "Transform":
+    def appyScale(self, scale:glm.vec3 = None, recursive:bool = False) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
         If scale is NOT set, the transform resets its own scale to (1, 1, 1).

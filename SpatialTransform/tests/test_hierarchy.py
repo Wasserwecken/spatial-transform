@@ -1,0 +1,122 @@
+import unittest
+from utils import *
+from SpatialTransform import Transform
+
+class AddRemove(unittest.TestCase):
+    def test_attatch(self):
+        root = Transform()
+        child1 = Transform()
+        child2= Transform()
+        child3 = Transform()
+        child4= Transform()
+
+        root.attach(child1)
+        self.assertEqual(root, child1.Parent)
+        self.assertEqual(1, len(root.Children))
+
+        root.attach(child2)
+        self.assertEqual(root, child2.Parent)
+        self.assertEqual(2, len(root.Children))
+
+        root.attach(child3, child4)
+        self.assertEqual(root, child3.Parent)
+        self.assertEqual(root, child4.Parent)
+        self.assertEqual(4, len(root.Children))
+
+        root.attach(child1)
+
+
+    def test_attatchKeepProperties(self):
+        for _ in range(randomSamples):
+            root = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
+            child1 = Transform()
+            child2 = Transform()
+
+            for _ in range(2):
+                root.attach(child1, keepPosition=False, keepRotation=False, keepScale=False)
+                self.assertGreater(deltaPosition, glm.distance2(root.SpaceWorld * glm.vec3(0), child1.PositionWorld))
+                self.assertGreater(deltaRotation, glm.angle(root.RotationWorld * glm.inverse(child1.RotationWorld)))
+                self.assertGreater(deltaScale, glm.distance2(root.ScaleWorld, child1.ScaleWorld))
+
+            for _ in range(2):
+                root.attach(child2, keepPosition=True, keepRotation=True, keepScale=True)
+                self.assertGreater(deltaPosition, glm.distance2(glm.vec3(0), child2.PositionWorld))
+                self.assertGreater(deltaRotation, glm.angle(child2.RotationWorld))
+                self.assertGreater(deltaScale, glm.distance2(glm.vec3(1), child2.ScaleWorld))
+
+    def test_detatch(self):
+        root = Transform()
+        child1 = Transform()
+        child2 = Transform()
+
+        root.attach(child1, child2)
+
+        root.detach(child1)
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(1, len(root.Children))
+
+        root.detach(child2)
+        self.assertEqual(None, child2.Parent)
+        self.assertEqual(0, len(root.Children))
+
+        root.detach(child1)
+
+    def test_detatchKeepProperties(self):
+        for _ in range(randomSamples):
+            root = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
+            child1 = Transform()
+            child2 = Transform()
+            root.attach(child1, child2, keepPosition=False, keepRotation=False, keepScale=False)
+
+            for _ in range(2):
+                root.detach(child1, keepPosition=False, keepRotation=False, keepScale=False)
+                self.assertGreater(deltaPosition, glm.distance2(glm.vec3(0), child1.PositionWorld))
+                self.assertGreater(deltaRotation, glm.angle(child1.RotationWorld))
+                self.assertGreater(deltaScale, glm.distance2(glm.vec3(1), child1.ScaleWorld))
+
+            for _ in range(2):
+                root.detach(child2, keepPosition=True, keepRotation=True, keepScale=True)
+                self.assertGreater(deltaPosition, glm.distance2(root.SpaceWorld * glm.vec3(0), child2.PositionWorld))
+                self.assertGreater(deltaRotation, glm.angle(root.RotationWorld * glm.inverse(child2.RotationWorld)))
+                self.assertGreater(deltaScale, glm.distance2(root.ScaleWorld, child2.ScaleWorld))
+
+    def test_clearChildren(self):
+        root = Transform()
+        child1 = Transform()
+        child2 = Transform()
+
+        root.attach(child1)
+        root.clearChildren()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(0, len(root.Children))
+
+        root.attach(child1, child2)
+        root.clearChildren()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(None, child2.Parent)
+        self.assertEqual(0, len(root.Children))
+
+        root.clearChildren()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(None, child2.Parent)
+        self.assertEqual(0, len(root.Children))
+
+    def test_clearParent(self):
+        root = Transform()
+        child1 = Transform()
+        child2 = Transform()
+
+        root.attach(child1, child2)
+        child1.clearParent()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(1, len(root.Children))
+
+        child2.clearParent()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(None, child2.Parent)
+        self.assertEqual(0, len(root.Children))
+
+        child2.clearParent()
+        self.assertEqual(None, child1.Parent)
+        self.assertEqual(None, child2.Parent)
+        self.assertEqual(0, len(root.Children))
