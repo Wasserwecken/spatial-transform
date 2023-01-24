@@ -30,21 +30,18 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Test with pytest
-        run: |
-          python -m unittest discover ./SpatialTransform/tests
+      - name: Test with unittest
+        run: python -m unittest discover ./SpatialTransform/tests
 
       - name: Build package
         run: python -m build
 
       - name: Publish package PyPI
-        # if: github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Publish package to TestPyPI
-        # if: github.ref == 'refs/heads/preview'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
