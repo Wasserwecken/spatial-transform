@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -23,8 +23,8 @@ jobs:
           python -m pip install build
 
       - name: Install project dependencies
-        # run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi # bash, linux
-        run: if(Test-Path -Path requirements.txt) {pip install -r requirements.txt} # powershell, windows
+        run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi # bash, linux
+        # run: if(Test-Path -Path requirements.txt) {pip install -r requirements.txt} # powershell, windows
 
       - name: Lint with flake8
         run: |
