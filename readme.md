@@ -17,11 +17,9 @@ This libary is a side product of my master thesis, in order to extract convenien
 pip install spatial-transform
  ```
 
- `Transform` is the class for creating hierarchies. It contains all the properties and methods of reading and manipulating spaces.
-
- `Euler` is a class with static members only for converting euler angle into quaternions or matrices. It supports diffrent rotation orders and can be used to convert between them.
-
  ## Notes
+-  `Transform` is the class for creating hierarchies. It contains all the properties and methods of reading and manipulating spaces.
+-  `Euler` is a class with static members only for converting euler angle into quaternions or matrices. It supports diffrent rotation orders and can be used to convert between
 - The package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used for matrix, quaternion and vector calculations.
 - Same coordination space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html) is used. Which is: Right-Handed, - Y+ is up, Z- is forward and positive rotations are counter clockwise.
 
