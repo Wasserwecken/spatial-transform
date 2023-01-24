@@ -37,20 +37,6 @@ jobs:
       - name: Build package
         run: python -m build
 
-      # - name: Release on GitHub
-      #   # if: github.ref == 'refs/heads/main'
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: |
-      #       SpatialTransform/*
-      #       readme.md
-      #       changelog.md
-      #       LICENSE
-      #     body_path: CHANGELOG.md
-      #     draft: false
-      #     prerelease: false
-      #     fail_on_unmatched_files: true
-
       - name: Publish package PyPI
         # if: github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
