@@ -3,7 +3,7 @@ name: Python package
 on:
   push:
     branches:
-      - 'main'
+      - 'preview'
 
 jobs:
   build:
@@ -38,11 +38,6 @@ jobs:
 
       - name: Build package
         run: python -m build
-
-      - name: Publish package PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
