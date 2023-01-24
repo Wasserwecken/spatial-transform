@@ -1,7 +1,7 @@
 
 [![PyPI version](https://badge.fury.io/py/spatial-transform.svg)](https://badge.fury.io/py/spatial-transform)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Publish Main](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_main.yml/badge.svg?branch=preview)
+![Publish Main](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_main.yml/badge.svg?branch=main)
 ![Publish Preview](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_preview.yml/badge.svg?branch=preview)
 
 # spatial-transform
