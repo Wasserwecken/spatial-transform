@@ -24,7 +24,7 @@ jobs:
 
       - name: Install project dependencies
         # run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi # bash, linux
-        run: IF EXIST requirements.txt (pip install -r requirements.txt) # batch, windows
+        run: if(Test-Path -Path requirements.txt) {pip install -r requirements.txt} # powershell, windows
 
       - name: Lint with flake8
         run: |
