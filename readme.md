@@ -9,7 +9,7 @@ Lightweight libary for creating hierarchies in a three dimensional space, like U
 Properties like positions, rotations, directions and scales can be easily accessed and are calculated based on the parents space for the world space. Individual transforms can be attatched and detatched at any point and have some more comfort methods for easy modifications.
 
 ## Why and intention
-This libary is a side product of my master thesis, in order to extract conveniently local and world data features from a humanoid skeleton hierarchy. I could not find any libary that could do that, without unencessary bloat and the features I required for extraction or modification.
+This libary is a side product of my master thesis, in order to extract conveniently local and world data features from a humanoid skeleton hierarchy. I could not find any libary that could do that, without bloat or the features I required for extraction or modification.
 
 ## Installation
 ``` batch
