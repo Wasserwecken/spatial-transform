@@ -243,7 +243,7 @@ class Transform:
         Returns the transform itself."""
         for node in nodes:
             # validate given joint
-            if node is None: raise ValueError(f'Given joint value is None')
+            if node is None: raise ValueError('Given joint value is None')
             if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
             if node in self._Children: return self
 
@@ -268,7 +268,7 @@ class Transform:
 
         Returns the transform itself."""
         # validate given joint
-        if node is None: raise ValueError(f'Given joint value is None')
+        if node is None: raise ValueError('Given joint value is None')
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
         if node not in self._Children: return self
 
@@ -398,10 +398,10 @@ class Transform:
                         print markers and connections (see explanations below)
         """
 
+        def mapper(draw): return connectionStr if draw else emptyStr
         emptyStr = " " * len(markerStr)
         connectionStr = "|" + emptyStr[:-1]
         level = len(levelMarkers)   # recursion level
-        def mapper(draw): return connectionStr if draw else emptyStr
         markers = "".join(map(mapper, levelMarkers[:-1]))
         markers += markerStr if level > 0 else ""
         print(f"{markers}{self.Name}")
