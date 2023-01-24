@@ -140,3 +140,6 @@ class Rotations(unittest.TestCase):
             t.appyScale(addition)
             self.assertGreater(deltaPosition, glm.distance2(parentLocal * addition, t.ScaleLocal))
             self.assertGreater(deltaPosition, glm.distance2(childWorld, c.ScaleWorld))
+
+if __name__ == '__main__':
+    unittest.main()

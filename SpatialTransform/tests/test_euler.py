@@ -17,3 +17,6 @@ class Conversions(unittest.TestCase):
             e = glm.eulerAngles(r)
             m = glm.mat3_cast(r)
             self.assertGreater(0.01, glm.distance(e, Euler.fromMatTo(m, order='XYZ', extrinsic=True)))
+
+if __name__ == '__main__':
+    unittest.main()

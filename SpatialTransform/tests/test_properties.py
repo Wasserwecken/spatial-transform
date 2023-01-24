@@ -168,3 +168,6 @@ class World(unittest.TestCase):
             root.ScaleLocal = randomScale()
             child.ScaleLocal = randomScale()
             self.assertEqual(root.ScaleLocal * child.ScaleLocal, child.ScaleWorld)
+
+if __name__ == '__main__':
+    unittest.main()

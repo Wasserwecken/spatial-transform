@@ -120,3 +120,6 @@ class AddRemove(unittest.TestCase):
         self.assertEqual(None, child1.Parent)
         self.assertEqual(None, child2.Parent)
         self.assertEqual(0, len(root.Children))
+
+if __name__ == '__main__':
+    unittest.main()
