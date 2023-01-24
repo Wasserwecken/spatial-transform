@@ -1,43 +1,31 @@
 
-
+[![PyPI version](https://badge.fury.io/py/spatial-transform.svg)](https://badge.fury.io/py/spatial-transform)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Publish Main](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_main.yml/badge.svg?branch=preview)
+![Publish Preview](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_preview.yml/badge.svg?branch=preview)
 
 # spatial-transform
-Lightweight libary for creating spatial space hierarchies, to have diffrent rotations, scale and positions which also rely on their parent transforms. This is inteded to be used like transform objects in game engines like Unity or Unreal. The package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used for the matrix, quaternion and vector calculations.
+Lightweight libary for creating hierarchies in a three dimensional space, like Unity, Unreal, Blender or any other 3D application.
 
+Properties like positions, rotations, directions and scales can be easily accessed and are calculated based on the parents space for the world space. Individual transforms can be attatched and detatched at any point and have some more comfort methods for easy modifications.
 
-## Install
+## Why and intention
+This libary is a side product of my master thesis, in order to extract conveniently local and world data features from a humanoid skeleton hierarchy. I could not find any libary that could do that, without unencessary bloat and the features I required for extraction or modification.
+
+## Installation
 ``` batch
 pip install spatial-transform
  ```
-## Features
-- Space properties in local and world space
-    - Position
-    - Rotation (Quaternion & Euler)
-    - Scale
-    - Space 4x4 matrix
-    - Axes direction (Forward, Up, Right)
-- Hierarchical
-    - Transforms can have a parent and children
-    - World space depends on the parent
-    - Transforms can be easily attached / detachatched
-- Python
-    - Every method is documented in code with docstrings
-    - Every method has type hinting
-    - ([Fluent Interface](https://de.wikipedia.org/wiki/Fluent_Interface)) design
-- Includes a static class for euler angle conversions.
 
-## Notes
-This libary uses the same coordination space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html), which is:
-- right handed
-- Y+ is up
-- Z- is forward
-- Positive rotation is counter clockwise
+ `Transform` is the class for creating hierarchies. It contains all the properties and methods of reading and manipulating spaces.
 
-Euler angles can be set with methods on the transform. ``SetEuler()`` and ``GetEuler()``. They support any instrinic or extrinsic rotation order. Angles are degrees in the ``Transform`` class but radians in the ``Euler`` class.
+ `Euler` is a class with static members only for converting euler angle into quaternions or matrices. It supports diffrent rotation orders and can be used to convert between them.
 
-## Examples and code
+ ## Notes
+- The package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used for matrix, quaternion and vector calculations.
+- Same coordination space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html) is used. Which is: Right-Handed, - Y+ is up, Z- is forward and positive rotations are counter clockwise.
 
+## Examples
 ### Create and attach transforms
 ``` python
 from SpatialTransform import Transform
