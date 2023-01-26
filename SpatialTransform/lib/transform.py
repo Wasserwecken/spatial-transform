@@ -293,7 +293,7 @@ class Transform:
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
-        if self.Parent is not None: self.Parent.detach(self, keepPosition, keepRotation, keepScale)
+        if self.Parent is not None: self.Parent.detach(self, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
         return self
 
     def clearChildren(self, keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
@@ -302,8 +302,7 @@ class Transform:
         If keep***** is true, the given transform will be modified to keep its world property.
 
         Returns the transform itself."""
-        for i in reversed(range(len(self.Children))):
-            self.detach(self.Children[i], keepPosition, keepRotation, keepScale)
+        self.detach(*self.Children, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
         return self
 
     def applyPosition(self, position: glm.vec3 = None, recursive: bool = False) -> "Transform":
