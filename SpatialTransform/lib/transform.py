@@ -246,7 +246,7 @@ class Transform:
             # validate given joint
             if node is None: raise ValueError('Given joint value is None')
             if node is self: raise ValueError(f'Joint "{self.Name}" cannot be parent of itself')
-            if node in self.Children: return self
+            if node in self.Children: continue
 
             # detach
             if node._Parent is not None:
@@ -262,7 +262,7 @@ class Transform:
             if keepScale: node.ScaleLocal = self.ScaleWorldInverse * node.ScaleLocal
         return self
 
-    def detach(self, node: "Transform", keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
+    def detach(self, *nodes: "Transform", keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
         """Detachs the given child transform.
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
@@ -270,20 +270,21 @@ class Transform:
         Nothing will change if the node has no relation to this transform.
 
         Returns the transform itself."""
-        # validate given joint
-        if node is None: raise ValueError('Given joint value is None')
-        if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
-        if node.Parent is None or node.Parent != self: return self
-        if node.Parent is self and node not in self.Children: raise ValueError(f'Joint "{node.Name}" has "{self.Name}" as parent, bust does not exist in the children list. Avoid manual child parent modifications')
+        for node in nodes:
+            # validate given joint
+            if node is None: raise ValueError('Given joint value is None')
+            if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
+            if node.Parent is self and node not in self.Children: raise ValueError(f'Joint "{node.Name}" has "{self.Name}" as parent, bust does not exist in the children list. Avoid manual child parent modifications')
+            if node.Parent is None or node.Parent != self: continue
 
-        # correct properties
-        if keepPosition: node.PositionLocal = self.SpaceWorld * node.PositionLocal
-        if keepRotation: node.RotationLocal = self.RotationWorld * node.RotationLocal
-        if keepScale: node.ScaleLocal = self.ScaleWorld * node.ScaleLocal
+            # correct properties
+            if keepPosition: node.PositionLocal = self.SpaceWorld * node.PositionLocal
+            if keepRotation: node.RotationLocal = self.RotationWorld * node.RotationLocal
+            if keepScale: node.ScaleLocal = self.ScaleWorld * node.ScaleLocal
 
-        # detach
-        self.Children.remove(node)
-        node._Parent = None
+            # detach
+            self.Children.remove(node)
+            node._Parent = None
         return self
 
     def clearParent(self, keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
