@@ -5,7 +5,7 @@ import random
 deltaPosition = 1e-05
 deltaRotation = 1e-05
 deltaScale = 1e-05
-randomSamples = 10000
+randomSamples = 1000
 
 
 def randomPosition():

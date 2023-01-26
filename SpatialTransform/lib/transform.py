@@ -240,6 +240,10 @@ class Transform:
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
 
+        If the transform is detatched first if it already has parent.
+
+        Nothing will change if the node already has a relation to this transform.
+
         Returns the transform itself."""
         for node in nodes:
             # validate given joint
@@ -266,11 +270,14 @@ class Transform:
 
         If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
 
+        Nothing will change if the node has no relation to this transform.
+
         Returns the transform itself."""
         # validate given joint
         if node is None: raise ValueError('Given joint value is None')
         if node is self: raise ValueError(f'Joint "{self.Name}" cannot be detachd from itself')
-        if node not in self._Children: return self
+        if node.Parent is None or node.Parent != self: return self
+        if node.Parent is self and node not in self.Children: raise ValueError(f'Joint "{node.Name}" has "{self.Name}" as parent, bust does not exist in the children list. Avoid manual child parent modifications')
 
         # correct properties
         if keepPosition: node.PositionLocal = self.SpaceWorld * node.PositionLocal

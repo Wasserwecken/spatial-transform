@@ -59,7 +59,20 @@ class AddRemove(unittest.TestCase):
         self.assertEqual(None, child2.Parent)
         self.assertEqual(0, len(root.Children))
 
+        otherRoot = Transform().attach(child1, child2)
         root.detach(child1)
+        self.assertEqual(2, len(otherRoot.Children))
+        self.assertEqual(otherRoot, child1.Parent)
+        self.assertEqual(otherRoot, child2.Parent)
+
+    def test_detatch_Exceptions(self):
+        child = Transform()
+        root = Transform().attach(child)
+        root.Children.remove(child)
+
+        self.assertRaises(ValueError, root.detach, None)
+        self.assertRaises(ValueError, root.detach, root)
+        self.assertRaises(ValueError, root.detach, child)
 
     def test_detatchKeepProperties(self):
         for _ in range(randomSamples):
