@@ -152,15 +152,16 @@ class Transform:
         """Attachted transforms."""
         return self._Children
 
-    def __init__(self, name: str = None, position: glm.vec3 = glm.vec3(), rotation: glm.quat = glm.quat(), scale: glm.vec3 = glm.vec3(1)) -> None:
+    def __init__(self, name: str = None, position: glm.vec3 = None, rotation: glm.quat = None, scale: glm.vec3 = None) -> None:
         """Creates a new transform. Parameters are considerd as local space"""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
         self._Parent: "Transform" = None
         self._Children: list["Transform"] = []
 
-        self._PositionLocal = glm.vec3(position)
-        self._ScaleLocal = glm.vec3(scale)
-        self._RotationLocal = glm.quat(rotation)
+        self._SpaceLocal = glm.mat4(1)
+        self._PositionLocal = glm.vec3() if position is None else glm.vec3(position)
+        self._RotationLocal = glm.quat() if rotation is None else glm.quat(rotation)
+        self._ScaleLocal = glm.vec3(1) if scale is None else glm.vec3(scale)
         self.__isOutdatedLocal = True
 
     def __repr__(self) -> str:
