@@ -8,7 +8,9 @@ from .euler import Euler
 class Transform:
     """Spatial definition of an linear space with position, rotation and scale.
 
-    Space is defined as right handed where Y+:up and X+:right and Z-:forward. Positive rotations are counter clockwise."""
+    Space is defined as right handed where Y+:up and X+:right and Z-:forward.
+
+    Positive rotations are counter clockwise."""
 
     @property
     def Name(self) -> str:
@@ -21,7 +23,7 @@ class Transform:
 
     @property
     def SpaceLocal(self) -> glm.mat4:
-        """Transform space without respect to its parent."""
+        """Transform space with local properties only."""
         if self.__isOutdatedLocal:
             self._SpaceLocal = glm.translate(self.PositionLocal)
             self._SpaceLocal = glm.scale(self._SpaceLocal, self.ScaleLocal)
@@ -31,12 +33,12 @@ class Transform:
 
     @property
     def SpaceWorld(self) -> glm.mat4:
-        """Space of the transform with respect to its parent."""
+        """Transform space with respect to the parent."""
         return (self.Parent.SpaceWorld if self.Parent else glm.mat4()) * self.SpaceLocal
 
     @property
     def SpaceWorldInverse(self) -> glm.mat4:
-        """Space of the transform with respect to its parent. Projects items to the local space."""
+        """Inverted transform space with respect to the parent."""
         return glm.inverse(self.SpaceWorld)
 
     @property
@@ -51,7 +53,7 @@ class Transform:
 
     @property
     def PositionWorld(self) -> glm.vec3:
-        """World position of this space."""
+        """World position of the space."""
         parentSpace = self.Parent.SpaceWorld if self.Parent else glm.mat4()
         return parentSpace * self.PositionLocal
 
@@ -62,7 +64,7 @@ class Transform:
 
     @property
     def RotationLocal(self) -> glm.quat:
-        """Local rotation of this space."""
+        """Local rotation of the space."""
         return glm.quat(self._RotationLocal)
 
     @RotationLocal.setter
@@ -72,7 +74,7 @@ class Transform:
 
     @property
     def RotationWorld(self) -> glm.quat:
-        """World rotation of this space."""
+        """World rotation of the space."""
         parentSpace = self.Parent.RotationWorld if self.Parent else glm.quat()
         return parentSpace * self.RotationLocal
 
@@ -83,7 +85,7 @@ class Transform:
 
     @property
     def RotationWorldInverse(self) -> glm.quat:
-        """World inverse rotation of this space."""
+        """Inverse world rotation of the space."""
         return glm.inverse(self.RotationWorld)
 
     @property
@@ -109,7 +111,7 @@ class Transform:
 
     @property
     def ScaleWorldInverse(self) -> glm.vec3:
-        """World inverse scale of the space."""
+        """Inverse world scale of the space."""
         return (1.0 / self.ScaleWorld)
 
     @property
@@ -149,11 +151,11 @@ class Transform:
 
     @property
     def Children(self) -> list["Transform"]:
-        """Attachted transforms."""
+        """Attachted transforms. This transform builds the parent space for those children."""
         return self._Children
 
     def __init__(self, name: str = None, position: glm.vec3 = None, rotation: glm.quat = None, scale: glm.vec3 = None) -> None:
-        """Creates a new transform. Parameters are considerd as local space"""
+        """Creates a new transform. Parameters are considerd in local space."""
         self.Name = name if name is not None else ''.join(random.choice(string.ascii_letters) for _ in range(8))
         self._Parent: "Transform" = None
         self._Children: list["Transform"] = []
@@ -169,14 +171,16 @@ class Transform:
 
     def __str__(self) -> str:
         return (f"Name: {self.Name}"
-                + f"\nPos: {self.PositionLocal}"
-                + f"\nRot: {self.RotationLocal}"
-                + f"\nScale: {self.ScaleLocal}"
-                + f"\nChildren: {len(self.Children)}"
+                + f" Pos: {self.PositionLocal}"
+                + f" Rot: {self.RotationLocal}"
+                + f" Scale: {self.ScaleLocal}"
+                + f" Children: {len(self.Children)}"
                 )
 
     def reset(self, recursive: bool = False) -> "Transform":
-        """Resets the whole transform to pos: (0,0,0) scale: (1,1,1) and no rotation."""
+        """Resets the transform to pos: (0,0,0) scale: (1,1,1) and no rotation.
+
+        Returns itself."""
         self.PositionLocal = glm.vec3(0)
         self.RotationLocal = glm.quat()
         self.ScaleLocal = glm.vec3(1)
@@ -204,20 +208,24 @@ class Transform:
     def getEuler(self, order: str = 'ZXY', extrinsic: bool = True) -> glm.vec3:
         """Returns the current Rotation as euler angles in the given order.
 
-        If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
+        - If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
         return glm.degrees(Euler.fromQuatTo(self.RotationLocal, order, extrinsic))
 
     def setEuler(self, degrees: glm.vec3, order: str = 'ZXY', extrinsic: bool = True) -> "Transform":
         """Converts the given euler anlges to quaternion and sets the rotation property.
 
-        If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
+        - If extrinsic the rotation will be around the world axes, ignoring previous rotations.
+
+        Returns itself."""
         self.RotationLocal = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
         return self
 
     def lookAtLocal(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction. Direction is considered as local space.
+        """Sets Rotation so the Z- axis aligns with the given direction.
 
-        Returns the transform itself."""
+        - Direction is considered as local space.
+
+        Returns itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0, 1, 0)))
         upAxis = up if dirDot < 0.999 else glm.vec3(1, 0, 0)
@@ -225,9 +233,11 @@ class Transform:
         return self
 
     def lookAtWorld(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
-        """Sets Rotation so the Z- axis aligns with the given direction.  Direction is considered as world space.
+        """Sets Rotation so the Z- axis aligns with the given direction.
 
-        Returns the transform itself."""
+        - Direction is considered as world space.
+
+        Returns itself."""
         parentWorldRotationInverse = (self.Parent.RotationWorldInverse if self.Parent else glm.mat4())
         direction = parentWorldRotationInverse * direction
 
@@ -236,13 +246,13 @@ class Transform:
     def attach(self, *nodes: "Transform", keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
         """Attaches the given transforms to this one as a child.
 
-        If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
+        - If keep***** is true -> the given transform will be modified to keep its spatial algiment in world space.
 
-        If the transform is detatched first if it already has parent.
+        - If the transform is detatched first if it already has parent.
 
-        Nothing will change if the node already has a relation to this transform.
+        - Nothing will change if the node already has a relation to this transform.
 
-        Returns the transform itself."""
+        Returns itself."""
         for node in nodes:
             # validate given joint
             if node is None: raise ValueError('Given joint value is None')
@@ -266,11 +276,11 @@ class Transform:
     def detach(self, *nodes: "Transform", keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
         """Detachs the given child transform.
 
-        If keep***** is true, the given transform will be modified to keep its spatial algiment in world space.
+        - If keep***** is true -> the given transform will be modified to keep its spatial algiment in world space.
 
-        Nothing will change if the node has no relation to this transform.
+        - Nothing will change if the node has no relation to this transform.
 
-        Returns the transform itself."""
+        Returns itself."""
         for node in nodes:
             # validate given joint
             if node is None: raise ValueError('Given joint value is None')
@@ -291,27 +301,29 @@ class Transform:
     def clearParent(self, keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
         """Detaches/detachs itself from the parent.
 
-        If keep***** is true, the given transform will be modified to keep its world property.
+        - If keep***** is true -> the given transform will be modified to keep its world property.
 
-        Returns the transform itself."""
-        if self.Parent is not None: self.Parent.detach(self, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
+        Returns itself."""
+        if self.Parent is not None:
+            self.Parent.detach(self, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
         return self
 
     def clearChildren(self, keepPosition: bool = False, keepRotation: bool = False, keepScale: bool = False) -> "Transform":
         """detachs all children of this transform.
 
-        If keep***** is true, the given transform will be modified to keep its world property.
+        - If keep***** is true -> the given transform will be modified to keep its world property.
 
-        Returns the transform itself."""
-        self.detach(*self.Children, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
+        Returns itself."""
+        if (len(self.Children) > 0):
+            self.detach(*self.Children, keepPosition=keepPosition, keepRotation=keepRotation, keepScale=keepScale)
         return self
 
     def applyPosition(self, position: glm.vec3 = None, recursive: bool = False) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
 
-        If position is NOT set, the transform resets its own position to (0, 0, 0).
+        - If position is None -> the transform resets its position to (0, 0, 0).
 
-        If position IS set, the given position is added to the current position.
+        - If position IS set -> the given position is added to the current position.
 
         Returns itself."""
         # define positional change
@@ -333,11 +345,9 @@ class Transform:
     def applyRotation(self, rotation: glm.quat = None, recursive: bool = False) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
 
-        If rotation is NOT set, the transform resets its own rotation to (1, 0, 0, 0).
+        - If rotation is None -> the transform resets its rotation to (1, 0, 0, 0).
 
-        If rotation IS set, the given rotation is added to the current rotation.
-
-        if includeLocal is true, the transforms also rotates its own local position.
+        - If rotation IS set -> the given rotation is added to the current rotation.
 
         Returns itself."""
         # define rotational change
@@ -360,11 +370,9 @@ class Transform:
     def appyScale(self, scale: glm.vec3 = None, recursive: bool = False) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
-        If scale is NOT set, the transform resets its own scale to (1, 1, 1).
+        - If scale is NOT set -> the transform resets its scale to (1, 1, 1).
 
-        If scale IS set, the given scale is added to the current scale.
-
-        if includeLocal is true, the transforms also scales its own local position.
+        - If scale IS set -> the given scale is added to the current scale.
 
         Returns itself."""
         # define change in scale
@@ -385,7 +393,9 @@ class Transform:
         return self
 
     def layout(self, index: int = 0, depth: int = 0) -> list[tuple["Transform", int, int]]:
-        """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth."""
+        """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth.
+
+        - Order of the tuple -> [transform, index, depth]"""
         result = [[self, index, depth]]
         for child in self.Children:
             result.extend(child.layout(result[-1][1] + 1, depth + 1))
@@ -418,7 +428,7 @@ class Transform:
     def filter(self, pattern: str, isEqual: bool = False, caseSensitive: bool = False) -> list["Transform"]:
         """Tries to find transforms that matches the pattern in their name name.
 
-        If isEqual is true, the name has to be equal to the pattern. Otherwise the pattern must only appear anywhere in the name."""
+        - If isEqual is true, the name has to be equal to the pattern. Otherwise the pattern must only appear anywhere in the name."""
         result = []
 
         selfname = self.Name if caseSensitive else self.Name.lower()
