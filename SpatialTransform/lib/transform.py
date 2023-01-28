@@ -8,9 +8,8 @@ from .euler import Euler
 class Transform:
     """Spatial definition of an linear space with position, rotation and scale.
 
-    Space is defined as right handed where Y+:up and X+:right and Z-:forward.
-
-    Positive rotations are counter clockwise."""
+    - Space is defined as right handed where -> Y+ is up, and X+ is right and Z- is forward.
+    - Positive rotations are counter clockwise."""
 
     @property
     def Name(self) -> str:
