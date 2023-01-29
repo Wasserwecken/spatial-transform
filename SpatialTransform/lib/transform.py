@@ -141,7 +141,7 @@ class Transform(Pose):
         """Transforms a given direction in world space to this  space."""
         return self.RotationWorldInverse * direction
 
-    def lookAt(self, direction: glm.vec3, up: glm.vec3 = ...) -> "Transform":
+    def lookAt(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
         return super().lookAt(direction, up)
 
     def lookAtWorld(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
