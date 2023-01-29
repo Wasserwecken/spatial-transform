@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 dynamic = ["dependencies"]
 name = "spatial-transform"
-version = "1.2.0"
+version = "1.2.1"
 authors = [ { name="Wasserwecken", email="author@example.com" }, ]
 description = "Libary for creating spatial space hierarchies"
 readme = "readme.md"
