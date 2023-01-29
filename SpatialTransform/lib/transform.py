@@ -401,3 +401,12 @@ class Transform(Pose):
             result.extend(child.filter(pattern))
 
         return result
+
+    def duplicate(self, recursive: bool = False) -> "Transform":
+        """Returns a duplicate of this transform.
+
+        - If recursive is True -> All child transfroms are duplicated too, into this duplicate."""
+
+        newChildren = [child.duplicate(recursive=True) for child in self.Children] if recursive else []
+        newDuplicate = Transform(self.Name, self.Position, self.Rotation, self.Scale)
+        return newDuplicate.attach(*newChildren, keep=None)

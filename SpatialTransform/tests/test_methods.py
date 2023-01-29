@@ -36,6 +36,26 @@ class Convertions(unittest.TestCase):
             t.attach(c)
             self.assertEqual(c.directionToLocal(p), glm.inverse((t.Rotation * c.Rotation)) * p)
 
+    def test_duplicate(self):
+        p = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
+        c = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
+        p.attach(c, keep=None)
+        copy = p.duplicate(recursive=True)
+
+        self.assertNotEqual(copy, p)
+        self.assertEqual(copy.Name, p.Name)
+        self.assertEqual(copy.Position, p.Position)
+        self.assertEqual(copy.Rotation, p.Rotation)
+        self.assertEqual(copy.Scale, p.Scale)
+        self.assertEqual(copy.Parent, p.Parent)
+        self.assertEqual(len(copy.Children), len(p.Children))
+
+        self.assertNotEqual(copy.Children[0], p.Children[0])
+        self.assertEqual(copy.Children[0].Name, p.Children[0].Name)
+        self.assertEqual(copy.Children[0].Position, p.Children[0].Position)
+        self.assertEqual(copy.Children[0].Rotation, p.Children[0].Rotation)
+        self.assertEqual(copy.Children[0].Scale, p.Children[0].Scale)
+        self.assertEqual(copy.Children[0].Parent, copy)
 class Rotations(unittest.TestCase):
     def test_setEuler(self):
         t = Transform()

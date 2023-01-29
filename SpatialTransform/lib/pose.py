@@ -117,3 +117,7 @@ class Pose:
         self.Rotation = glm.quatLookAtRH(direction, upAxis)
 
         return self
+
+    def duplicate(self) -> "Pose":
+        """Returns a duplicate of this pose."""
+        return Pose(self.Position, self.Rotation, self.Scale)
