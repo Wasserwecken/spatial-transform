@@ -12,13 +12,13 @@ class Convertions(unittest.TestCase):
             t.attach(c)
             self.assertEqual(c.pointToWorld(p), (t.Space * c.Space) * p)
 
-    def test_pointTo(self):
+    def test_pointToLocal(self):
         for _ in range(randomSamples):
             p = randomPosition() * 10
             t = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             c = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             t.attach(c)
-            self.assertEqual(c.pointTo(p), glm.inverse(t.Space * c.Space) * p)
+            self.assertEqual(c.pointToLocal(p), glm.inverse(t.Space * c.Space) * p)
 
     def test_directionToWorld(self):
         for _ in range(randomSamples):
@@ -28,13 +28,13 @@ class Convertions(unittest.TestCase):
             t.attach(c)
             self.assertEqual(c.directionToWorld(p), (t.Rotation * c.Rotation) * p)
 
-    def test_directionTo(self):
+    def test_directionToLocal(self):
         for _ in range(randomSamples):
             p = randomPosition()
             t = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             c = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             t.attach(c)
-            self.assertEqual(c.directionTo(p), glm.inverse((t.Rotation * c.Rotation)) * p)
+            self.assertEqual(c.directionToLocal(p), glm.inverse((t.Rotation * c.Rotation)) * p)
 
 class Rotations(unittest.TestCase):
     def test_setEuler(self):
