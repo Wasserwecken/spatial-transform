@@ -175,7 +175,7 @@ class Transform(Pose):
 
             # detach
             if node._Parent is not None:
-                node._Parent.detach(node, keep)
+                node._Parent.detach(node, keep=keep)
 
             # attatch
             self.Children.append(node)
