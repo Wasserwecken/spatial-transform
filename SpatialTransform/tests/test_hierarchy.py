@@ -33,13 +33,13 @@ class AddRemove(unittest.TestCase):
             child2 = Transform()
 
             for _ in range(2):
-                root.attach(child1, keepPosition=False, keepRotation=False, keepScale=False)
+                root.attach(child1, keep=None)
                 self.assertGreater(deltaPosition, glm.distance2(root.SpaceWorld * glm.vec3(0), child1.PositionWorld))
                 self.assertGreater(deltaRotation, glm.angle(root.RotationWorld * glm.inverse(child1.RotationWorld)))
                 self.assertGreater(deltaScale, glm.distance2(root.ScaleWorld, child1.ScaleWorld))
 
             for _ in range(2):
-                root.attach(child2, keepPosition=True, keepRotation=True, keepScale=True)
+                root.attach(child2, keep=['position', 'rotation', 'scale'])
                 self.assertGreater(deltaPosition, glm.distance2(glm.vec3(0), child2.PositionWorld))
                 self.assertGreater(deltaRotation, glm.angle(child2.RotationWorld))
                 self.assertGreater(deltaScale, glm.distance2(glm.vec3(1), child2.ScaleWorld))
@@ -81,16 +81,16 @@ class AddRemove(unittest.TestCase):
             root = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             child1 = Transform()
             child2 = Transform()
-            root.attach(child1, child2, keepPosition=False, keepRotation=False, keepScale=False)
+            root.attach(child1, child2, keep=None)
 
             for _ in range(2):
-                root.detach(child1, keepPosition=False, keepRotation=False, keepScale=False)
+                root.detach(child1, keep=None)
                 self.assertGreater(deltaPosition, glm.distance2(glm.vec3(0), child1.PositionWorld))
                 self.assertGreater(deltaRotation, glm.angle(child1.RotationWorld))
                 self.assertGreater(deltaScale, glm.distance2(glm.vec3(1), child1.ScaleWorld))
 
             for _ in range(2):
-                root.detach(child2, keepPosition=True, keepRotation=True, keepScale=True)
+                root.detach(child2, keep=['position', 'rotation', 'scale'])
                 self.assertGreater(deltaPosition, glm.distance2(root.SpaceWorld * glm.vec3(0), child2.PositionWorld))
                 self.assertGreater(deltaRotation, glm.angle(root.RotationWorld * glm.inverse(child2.RotationWorld)))
                 self.assertGreater(deltaScale, glm.distance2(root.ScaleWorld, child2.ScaleWorld))
