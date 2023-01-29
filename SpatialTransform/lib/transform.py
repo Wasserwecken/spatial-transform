@@ -129,7 +129,7 @@ class Transform(Pose):
         """Transforms a given point in this  space to world space."""
         return self.SpaceWorld * point
 
-    def pointTo(self, point: glm.vec3) -> glm.vec3:
+    def pointToLocal(self, point: glm.vec3) -> glm.vec3:
         """Transforms a given point in world space to this  space."""
         return self.SpaceWorldInverse * point
 
@@ -137,9 +137,12 @@ class Transform(Pose):
         """Transforms a given direction in this  space to world space."""
         return self.RotationWorld * direction
 
-    def directionTo(self, direction: glm.vec3) -> glm.vec3:
+    def directionToLocal(self, direction: glm.vec3) -> glm.vec3:
         """Transforms a given direction in world space to this  space."""
         return self.RotationWorldInverse * direction
+
+    def lookAt(self, direction: glm.vec3, up: glm.vec3 = ...) -> "Transform":
+        return super().lookAt(direction, up)
 
     def lookAtWorld(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
         """Sets Rotation so the Z- axis aligns with the given direction.
@@ -151,6 +154,9 @@ class Transform(Pose):
         direction = parentWorldRotationInverse * direction
 
         return super().lookAt(direction, up)
+
+    def setEuler(self, degrees: glm.vec3, order: str = 'ZXY', extrinsic: bool = True) -> "Transform":
+        return super().setEuler(degrees, order, extrinsic)
 
     def attach(self, *nodes: "Transform", keep: list[str] = ['position', 'rotation', 'scale']) -> "Transform":
         """Attaches the given transforms to this one as a child.

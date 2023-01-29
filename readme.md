@@ -25,7 +25,7 @@ pip install spatial-transform
 ## Examples
 ### Create and attach transforms
 ``` python
-from SpatialTransform import Transform
+from SpatialTransform import Transform, Euler
 
 # defining the transforms
 hips = Transform('Hips', position=(0,2,0))
@@ -47,9 +47,9 @@ RightLegLower.attach(RightLegFoot)
 
 # show the created hierarchy
 hips.printTree()
-print('\nPositions:')
+print('\nWorld positions, local positions, joint directions:')
 for item, index, depth in hips.layout():
-    print(f'{item.PositionWorld} {item.PositionLocal} {item.Name}')
+    print(f'{item.PositionWorld} {item.Position} {item.ForwardWorld} {item.Name}')
 
 # --------------------------- OUTPUT ---------------------------
 # Hips
@@ -60,7 +60,7 @@ for item, index, depth in hips.layout():
 #    +- RightLegLower
 #       +- RightLegFoot
 
-# Positions:
+# World positions, local positions, joint direction:
 # vec3(            0,            2,            0 ) vec3(            0,            2,            0 ) Hips
 # vec3(          0.2,            2,            0 ) vec3(          0.2,            0,            0 ) LeftLegUpper
 # vec3(          0.2,            1,            0 ) vec3(            0,           -1,            0 ) LeftLegLower
@@ -78,7 +78,7 @@ from SpatialTransform import Transform
 # but the inverse-properties are read only
 root = Transform()
 root.PositionWorld = (1,2,3)
-root.ScaleLocal = .1                # accepts either a single value or a tuple of three
+root.Scale = .1                     # accepts either a single value or a tuple of three
 root.RotationWorld = (1, 0, 0, 0)   # rotations are in quaternions
 
 # the rotation can be also read and changed with extra methods for simplified usage
@@ -87,13 +87,13 @@ root.getEuler(order='ZYX')
 root.lookAtWorld((1, 1, 1))
 
 # some methods do update the transform and keep childrens spatially unchanged
-root.clearParent(keepPosition=True, keepRotation=True, keepScale=True)
-root.clearChildren(keepPosition=True, keepRotation=True, keepScale=True)
+root.clearParent(keep=['position', 'rotation', 'scale'])
+root.clearChildren(keep=['position', 'rotation', 'scale'])
 root.applyPosition()
 root.applyRotation(recursive=True)
-root.appyScale(recursive=True, includeLocal=True)
+root.appyScale(recursive=True)
 
-# the transform provide two methods to convert arbitrary points and direction from an to the spaces
+# the transform provide two methods to convert arbitrary points and direction from and to the spaces
 root.pointToWorld((5,4,3))
 root.directionToLocal((2,3,4))
 ```
@@ -124,7 +124,7 @@ feets = hips.setEuler((0, 180, 0)).applyRotation().filter('Foot')
 hips.printTree()
 print('\nPositions:')
 for item, index, depth in hips.layout():
-    print(f'{item.PositionWorld} {item.PositionLocal} {item.Name}')
+    print(f'{item.PositionWorld} {item.Position} {item.Name}')
 
 # --------------------------- OUTPUT ---------------------------
 # Hips
