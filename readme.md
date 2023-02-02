@@ -4,6 +4,7 @@
 [![Publish Preview](https://github.com/Wasserwecken/spatial-transform/actions/workflows/publish_preview.yml/badge.svg?branch=preview)](https://test.pypi.org/project/spatial-transform/)
 [![PyPI download month](https://img.shields.io/pypi/dm/spatial-transform.svg)](https://pypi.python.org/pypi/spatial-transform/)
 [![Generic badge](https://img.shields.io/badge/Ask_me-anything-turquoise.svg)](https://github.com/Wasserwecken/spatial-transform/issues)
+<a href="https://www.buymeacoffee.com/ericdolch"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="20px"></a>
 
 # spatial-transform
 Lightweight libary for creating hierarchies in a three dimensional space, like Unity, Unreal, Blender or any other 3D application.
