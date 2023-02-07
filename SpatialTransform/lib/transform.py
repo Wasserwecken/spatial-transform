@@ -251,18 +251,19 @@ class Transform(Pose):
 
         # apply changes to itself
         self.Position = self.Position + change
-        for item in includeParentChange:
-            item.Position = item.Position + change
 
         # apply changes to children
-        for item in includeChildrenChange:
-            item.Position = item.Position + changeInverse
-
         for child in self.Children:
             child.Position = child.Position + changeInverse
 
             # may do it recursively
             if recursive: child.applyPosition(position, recursive=True)
+
+        # apply to additionals
+        for item in includeParentChange:
+            item.Position = item.Position + change
+        for item in includeChildrenChange:
+            item.Position = item.Position + changeInverse
 
         return self
 
@@ -281,20 +282,21 @@ class Transform(Pose):
 
         # apply changes to itself
         self.Rotation = self.Rotation * change
-        for item in includeParentChange:
-            item.Rotation = item.Rotation * change
 
         # apply changes to children
-        for item in includeChildrenChange:
-            item.Position = changeInverse * item.Position
-            item.Rotation = changeInverse * item.Rotation
-
         for child in self.Children:
             child.Position = changeInverse * child.Position
             child.Rotation = changeInverse * child.Rotation
 
             # may do it recursively
             if recursive: child.applyRotation(rotation, recursive=True)
+
+        # apply to additionals
+        for item in includeParentChange:
+            item.Rotation = item.Rotation * change
+        for item in includeChildrenChange:
+            item.Position = changeInverse * item.Position
+            item.Rotation = changeInverse * item.Rotation
 
         return self
 
@@ -313,20 +315,21 @@ class Transform(Pose):
 
         # apply changes to itself
         self.Scale = self.Scale * change
-        for item in includeParentChange:
-            item.Scale = item.Scale * change
 
         # keep space for children
-        for item in includeChildrenChange:
-            item.Position = changeInverse * item.Position
-            item.Scale = changeInverse * item.Scale
-
         for child in self.Children:
             child.Position = changeInverse * child.Position
             child.Scale = changeInverse * child.Scale
 
             # may do it recursively
             if recursive: child.appyScale(scale, recursive=True)
+
+        # apply to additionals
+        for item in includeParentChange:
+            item.Scale = item.Scale * change
+        for item in includeChildrenChange:
+            item.Position = changeInverse * item.Position
+            item.Scale = changeInverse * item.Scale
 
         return self
 
