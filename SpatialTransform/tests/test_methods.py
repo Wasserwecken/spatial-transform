@@ -147,7 +147,7 @@ class Rotations(unittest.TestCase):
             c = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
             t.attach(c)
             childWorld = c.ScaleWorld
-            t.appyScale()
+            t.applyScale()
             self.assertGreater(deltaPosition, glm.distance2(glm.vec3(1), t.Scale))
             self.assertGreater(deltaPosition, glm.distance2(childWorld, c.ScaleWorld))
 
@@ -157,7 +157,7 @@ class Rotations(unittest.TestCase):
             t.attach(c)
             parent = t.Scale
             childWorld = c.ScaleWorld
-            t.appyScale(addition)
+            t.applyScale(addition)
             self.assertGreater(deltaPosition, glm.distance2(parent * addition, t.Scale))
             self.assertGreater(deltaPosition, glm.distance2(childWorld, c.ScaleWorld))
 
