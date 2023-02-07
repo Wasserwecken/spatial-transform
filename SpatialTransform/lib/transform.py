@@ -389,3 +389,8 @@ class Transform(Pose):
             return Pose(self.PositionWorld, rotation=self.RotationWorld, scale=self.ScaleWorld)
         else:
             return Pose(self.Position, rotation=self.Rotation, scale=self.Scale)
+
+    def fromPose(pose: Pose, name: str = None) -> "Transform":
+        """Returns this pose as new transform.
+        - If name is set -> The name will be set for the new transform."""
+        return Transform(name=name, position=pose.Position, rotation=pose.Rotation, scale=pose.Scale)

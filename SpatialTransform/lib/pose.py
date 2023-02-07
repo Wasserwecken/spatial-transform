@@ -1,6 +1,5 @@
 import glm
 from .euler import Euler
-from .transform import Transform
 
 
 class Pose:
@@ -116,8 +115,3 @@ class Pose:
     def duplicate(self) -> "Pose":
         """Returns a duplicate of this pose."""
         return Pose(self.Position, self.Rotation, self.Scale)
-
-    def toTransform(self, name: str = None) -> Transform:
-        """Returns this pose as new transform.
-        - If name is set -> The name will be set for the new transform."""
-        return Transform(name=name, position=self.Position, rotation=self.Rotation, scale=self.Scale)
