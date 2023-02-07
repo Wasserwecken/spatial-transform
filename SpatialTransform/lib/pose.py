@@ -1,10 +1,10 @@
 import glm
 from .euler import Euler
+from .transform import Transform
 
 
 class Pose:
     """Spatial definition of an linear space with position, rotation and scale.
-
     - ONLY provides properties and methods for local space.
     - There is no parent child relation between poses
     - Space is defined as right handed where -> Y+ is up, and X+ is right and Z- is forward.
@@ -92,24 +92,19 @@ class Pose:
 
     def getEuler(self, order: str = 'ZXY', extrinsic: bool = True) -> glm.vec3:
         """Returns the current Rotation as euler angles in the given order.
-
         - If extrinsic the rotation will be around the world axes, ignoring previous rotations."""
         return glm.degrees(Euler.fromQuatTo(self.Rotation, order, extrinsic))
 
     def setEuler(self, degrees: glm.vec3, order: str = 'ZXY', extrinsic: bool = True) -> "Pose":
         """Converts the given euler anlges to quaternion and sets the rotation property.
-
         - If extrinsic the rotation will be around the world axes, ignoring previous rotations.
-
         Returns itself."""
         self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
         return self
 
     def lookAt(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Pose":
         """Sets Rotation so the Z- axis aligns with the given direction.
-
         - Direction is considered as local space.
-
         Returns itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0, 1, 0)))
@@ -121,3 +116,8 @@ class Pose:
     def duplicate(self) -> "Pose":
         """Returns a duplicate of this pose."""
         return Pose(self.Position, self.Rotation, self.Scale)
+
+    def toTransform(self, name: str = None) -> Transform:
+        """Returns this pose as new transform.
+        - If name is set -> The name will be set for the new transform."""
+        return Transform(name=name, position=self.Position, rotation=self.Rotation, scale=self.Scale)

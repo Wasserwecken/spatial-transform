@@ -368,7 +368,6 @@ class Transform(Pose):
 
     def filter(self, pattern: str, isEqual: bool = False, caseSensitive: bool = False) -> list["Transform"]:
         """Tries to find transforms that matches the pattern in their name name.
-
         - If isEqual is true, the name has to be equal to the pattern. Otherwise the pattern must only appear anywhere in the name."""
         result = []
 
@@ -395,9 +394,16 @@ class Transform(Pose):
 
     def duplicate(self, recursive: bool = False) -> "Transform":
         """Returns a duplicate of this transform.
-
         - If recursive is True -> All child transfroms are duplicated too, into this duplicate."""
 
         newChildren = [child.duplicate(recursive=True) for child in self.Children] if recursive else []
         newDuplicate = Transform(self.Name, self.Position, self.Rotation, self.Scale)
         return newDuplicate.attach(*newChildren, keep=None)
+
+    def toPose(self, worldSpace: bool = False) -> Pose:
+        """Returns this transform as new pose object.
+        - If worldSpace is True -> The world spcae properties are copied into the pose."""
+        if worldSpace:
+            return Pose(self.PositionWorld, rotation=self.RotationWorld, scale=self.ScaleWorld)
+        else:
+            return Pose(self.Position, rotation=self.Rotation, scale=self.Scale)
