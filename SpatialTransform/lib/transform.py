@@ -225,40 +225,46 @@ class Transform(Pose):
             self.detach(*self.Children, keep=keep)
         return self
 
-    def __applyPositionChange(self, position: glm.vec3 = None) -> tuple[glm.vec3, glm.vec3]:
+    def __applyPositionGetChanges(self, position: glm.vec3 = None) -> tuple[glm.vec3, glm.vec3]:
         change = -self.Position if position is None else position
         changeInverse = glm.inverse(self.Rotation) * ((1.0 / self.Scale) * -change)
         return (change, changeInverse)
 
-    def __applyPositionSelf(self, change: glm.vec3, changeInverse: glm.vec3):
+    def __applyPositionChange(self, change: glm.vec3):
         self.Position = self.Position + change
-        for child in self.Children:
-            child.Position = child.Position + changeInverse
+
+    def __applyPositionChangeInverse(self, changeInverse: glm.vec3):
+        self.Position = self.Position + changeInverse
 
     def applyPosition(self, position: glm.vec3 = None, recursive: bool = False) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
         - If position is None -> the transform resets its position to (0, 0, 0).
         - If position IS set -> the given position is added to the current position.
         Returns itself."""
-        self.__applyPositionSelf(*self.__applyPositionChange(position))
+        change, changeInverse = self.__applyPositionGetChanges(position)
 
-        if recursive:
-            for child in self.Children:
-                child.applyPosition(position=position, recursive=True)
+        self.__applyPositionChange(change)
+
+        for child in self.Children:
+            child.__applyPositionChangeInverse(changeInverse)
+
+            if recursive:
+                child.applyRotation(position=position, recursive=True)
 
         return self
 
-    def __applyRotationChange(self, rotation: glm.quat = None) -> tuple[glm.quat, glm.quat]:
+    def __applyRotationChanges(self, rotation: glm.quat = None) -> tuple[glm.quat, glm.quat]:
         change = glm.inverse(self.Rotation) if rotation is None else rotation
         changeInverse = glm.inverse(change)
         return (change, changeInverse)
 
-    def __applyRotationSelf(self, change: glm.quat, changeInverse: glm.quat, bake: bool = False):
+    def __applyRotationChange(self, change: glm.quat):
         self.Rotation = self.Rotation * change
-        for child in self.Children:
-            child.Position = changeInverse * child.Position
-            if not bake:
-                child.Rotation = changeInverse * child.Rotation
+
+    def __applyRotationChangeInverse(self, changeInverse: glm.quat, bake: bool = False):
+        self.Position = changeInverse * self.Position
+        if not bake:
+            self.Rotation = changeInverse * self.Rotation
 
     def applyRotation(self, rotation: glm.quat = None, recursive: bool = False, bake: bool = False) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
@@ -266,25 +272,30 @@ class Transform(Pose):
         - If rotation IS set -> the given rotation is added to the current rotation.
         - If bake Is True -> The rotation correction is NOT passed to the children, only positions will be modified.
         Returns itself."""
-        self.__applyRotationSelf(*self.__applyRotationChange(rotation), bake=bake)
+        change, changeInverse = self.__applyRotationChanges(rotation)
 
-        if recursive:
-            for child in self.Children:
+        self.__applyRotationChange(change)
+
+        for child in self.Children:
+            child.__applyRotationChangeInverse(changeInverse, bake=bake)
+
+            if recursive:
                 child.applyRotation(rotation=rotation, recursive=True, bake=bake)
 
         return self
 
-    def __applyScaleChange(self, scale: glm.vec3 = None) -> tuple[glm.vec3, glm.vec3]:
+    def __applyScaleGetChanges(self, scale: glm.vec3 = None) -> tuple[glm.vec3, glm.vec3]:
         change = (1.0 / self.Scale) if scale is None else scale
         changeInverse = (1.0 / change)
         return (change, changeInverse)
 
-    def __applyScaleSelf(self, change: glm.vec3, changeInverse: glm.vec3, bake: bool = False):
+    def __applyScaleChange(self, change: glm.vec3):
         self.Scale = self.Scale * change
-        for child in self.Children:
-            child.Position = changeInverse * child.Position
-            if not bake:
-                child.Scale = changeInverse * child.Scale
+
+    def __applyScaleChangeInverse(self, changeInverse: glm.vec3, bake: bool = False):
+        self.Position = changeInverse * self.Position
+        if not bake:
+            self.Scale = changeInverse * self.Scale
 
     def applyScale(self, scale: glm.vec3 = None, recursive: bool = False, bake: bool = False) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
@@ -292,10 +303,14 @@ class Transform(Pose):
         - If scale IS set -> The given scale is added to the current scale.
         - If bake Is True -> The scale correction is NOT passed to the children, only positions will be modified.
         Returns itself."""
-        self.__applyScaleSelf(*self.__applyScaleChange(scale), bake=bake)
+        change, changeInverse = self.__applyScaleGetChanges(scale)
 
-        if recursive:
-            for child in self.Children:
+        self.__applyScaleChange(change)
+
+        for child in self.Children:
+            child.__applyScaleChangeInverse(changeInverse, bake=bake)
+
+            if recursive:
                 child.applyScale(scale=scale, recursive=True, bake=bake)
 
         return self
