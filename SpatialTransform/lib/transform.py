@@ -7,7 +7,6 @@ from .pose import Pose
 
 class Transform(Pose):
     """Spatial definition of an linear space with position, rotation and scale.
-
     - Based on 'Pose' class, extended with parent child relation ship propertis and methods.
     - Space is defined as right handed where -> Y+ is up, and X+ is right and Z- is forward.
     - Positive rotations are counter clockwise."""
@@ -146,9 +145,7 @@ class Transform(Pose):
 
     def lookAtWorld(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
         """Sets Rotation so the Z- axis aligns with the given direction.
-
         - Direction is considered as world space.
-
         Returns itself."""
         parentWorldRotationInverse = (self.Parent.RotationWorldInverse if self.Parent else glm.mat4())
         direction = parentWorldRotationInverse * direction
@@ -160,12 +157,10 @@ class Transform(Pose):
 
     def attach(self, *nodes: "Transform", keep: list[str] = ['position', 'rotation', 'scale']) -> "Transform":
         """Attaches the given transforms to this one as a child.
-
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
         - If the transform is detatched first if it already has parent.
         - Nothing will change if the node already has a relation to this transform.
-
         Returns itself."""
         for node in nodes:
             # validate given joint
@@ -190,11 +185,9 @@ class Transform(Pose):
 
     def detach(self, *nodes: "Transform", keep: list[str] = ['position', 'rotation', 'scale']) -> "Transform":
         """Detachs the given child transform.
-
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
         - Nothing will change if the node has no relation to this transform.
-
         Returns itself."""
         for node in nodes:
             # validate given joint
@@ -216,21 +209,17 @@ class Transform(Pose):
 
     def clearParent(self, keep: list[str] = ['position', 'rotation', 'scale']) -> "Transform":
         """Detaches/detachs itself from the parent.
-
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
-
         Returns itself."""
         if self.Parent is not None:
             self.Parent.detach(self, keep=keep)
         return self
 
     def clearChildren(self, keep: list[str] = ['position', 'rotation', 'scale']) -> "Transform":
-        """detachs all children of this transform.
-
+        """Detachs all children of this transform.
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
-
         Returns itself."""
         if (len(self.Children) > 0):
             self.detach(*self.Children, keep=keep)
@@ -238,12 +227,10 @@ class Transform(Pose):
 
     def applyPosition(self, position: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
-
         - If position is None -> the transform resets its position to (0, 0, 0).
         - If position IS set -> the given position is added to the current position.
         - If includeParentChange contains poses -> Those poses recieve the same change as this transfrom.
         - If includeChildChange contains poses -> Those poses recieve the same change as the children.
-
         Returns itself."""
         # define positional change
         change = -self.Position if position is None else position
@@ -269,12 +256,10 @@ class Transform(Pose):
 
     def applyRotation(self, rotation: glm.quat = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
-
         - If rotation is None -> the transform resets its rotation to (1, 0, 0, 0).
         - If rotation IS set -> the given rotation is added to the current rotation.
         - If includeParentChange contains poses -> Those poses recieve the same change as this transfrom.
         - If includeChildChange contains poses -> Those poses recieve the same change as the children.
-
         Returns itself."""
         # define rotational change
         change = glm.inverse(self.Rotation) if rotation is None else rotation
@@ -302,12 +287,10 @@ class Transform(Pose):
 
     def applyScale(self, scale: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
-
         - If scale is NOT set -> the transform resets its scale to (1, 1, 1).
         - If scale IS set -> the given scale is added to the current scale.
         - If includeParentChange contains poses -> Those poses recieve the same change as this transfrom.
         - If includeChildChange contains poses -> Those poses recieve the same change as the children.
-
         Returns itself."""
         # define change in scale
         change = (1.0 / self.Scale) if scale is None else scale
@@ -335,7 +318,6 @@ class Transform(Pose):
 
     def layout(self, index: int = 0, depth: int = 0) -> list[tuple["Transform", int, int]]:
         """Returns the hierarchy, inclunding this transform, in order of 'depth first' with their index and depth.
-
         - Order of the tuple -> [transform, index, depth]"""
         result = [[self, index, depth]]
         for child in self.Children:
