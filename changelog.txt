@@ -1,2 +1,0 @@
-1.2.6
-    - Add include lists to apply methods
