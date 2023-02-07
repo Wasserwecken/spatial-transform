@@ -236,7 +236,7 @@ class Transform(Pose):
             self.detach(*self.Children, keep=keep)
         return self
 
-    def applyPosition(self, position: glm.vec3 = None, recursive: bool = False) -> "Transform":
+    def applyPosition(self, position: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
 
         - If position is None -> the transform resets its position to (0, 0, 0).
@@ -250,18 +250,22 @@ class Transform(Pose):
         changeInverse = glm.inverse(self.Rotation) * ((1.0 / self.Scale) * -change)
 
         # apply changes to itself
-        self.Position += change
+        self.Position = self.Position + change
+        for item in includeParentChange:
+            item.Position = item.Position + change
 
         # apply changes to children
         for child in self.Children:
-            child.Position += changeInverse
+            child.Position = child.Position + changeInverse
+            for item in includeChildrenChange:
+                item.Position = item.Position + changeInverse
 
             # may do it recursively
-            if recursive: child.applyRotation(position, recursive=True)
+            if recursive: child.applyPosition(position, recursive=True)
 
         return self
 
-    def applyRotation(self, rotation: glm.quat = None, recursive: bool = False) -> "Transform":
+    def applyRotation(self, rotation: glm.quat = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the rotation of this transform and updates its children to keep them spatial unchanged.
 
         - If rotation is None -> the transform resets its rotation to (1, 0, 0, 0).
@@ -276,18 +280,23 @@ class Transform(Pose):
 
         # apply changes to itself
         self.Rotation = self.Rotation * change
+        for item in includeParentChange:
+            item.Rotation = item.Rotation * change
 
         # apply changes to children
         for child in self.Children:
             child.Position = changeInverse * child.Position
             child.Rotation = changeInverse * child.Rotation
+            for item in includeChildrenChange:
+                item.Position = changeInverse * item.Position
+                item.Rotation = changeInverse * item.Rotation
 
             # may do it recursively
             if recursive: child.applyRotation(rotation, recursive=True)
 
         return self
 
-    def appyScale(self, scale: glm.vec3 = None, recursive: bool = False) -> "Transform":
+    def appyScale(self, scale: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
         - If scale is NOT set -> the transform resets its scale to (1, 1, 1).
@@ -302,11 +311,16 @@ class Transform(Pose):
 
         # apply changes to itself
         self.Scale = self.Scale * change
+        for item in includeParentChange:
+            item.Scale = item.Scale * change
 
         # keep space for children
         for child in self.Children:
             child.Position = changeInverse * child.Position
             child.Scale = changeInverse * child.Scale
+            for item in includeChildrenChange:
+                item.Position = changeInverse * item.Position
+                item.Scale = changeInverse * item.Scale
 
             # may do it recursively
             if recursive: child.appyScale(scale, recursive=True)

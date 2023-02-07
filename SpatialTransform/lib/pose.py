@@ -5,7 +5,7 @@ from .euler import Euler
 class Pose:
     """Spatial definition of an linear space with position, rotation and scale.
 
-    - ONLY provides properties and methods for  space.
+    - ONLY provides properties and methods for local space.
     - There is no parent child relation between poses
     - Space is defined as right handed where -> Y+ is up, and X+ is right and Z- is forward.
     - Positive rotations are counter clockwise."""
