@@ -253,7 +253,7 @@ class Transform(Pose):
 
         return self
 
-    def __applyRotationChanges(self, rotation: glm.quat = None) -> tuple[glm.quat, glm.quat]:
+    def __applyRotationGetChanges(self, rotation: glm.quat = None) -> tuple[glm.quat, glm.quat]:
         change = glm.inverse(self.Rotation) if rotation is None else rotation
         changeInverse = glm.inverse(change)
         return (change, changeInverse)
