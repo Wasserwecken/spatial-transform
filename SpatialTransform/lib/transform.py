@@ -300,7 +300,7 @@ class Transform(Pose):
 
         return self
 
-    def appyScale(self, scale: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
+    def applyScale(self, scale: glm.vec3 = None, recursive: bool = False, includeParentChange: list[Pose] = [], includeChildrenChange: list[Pose] = []) -> "Transform":
         """Changes the scale of the transform and updates its children to keep them spatial unchanged.
 
         - If scale is NOT set -> the transform resets its scale to (1, 1, 1).
@@ -322,7 +322,7 @@ class Transform(Pose):
             child.Scale = changeInverse * child.Scale
 
             # may do it recursively
-            if recursive: child.appyScale(scale, recursive=True)
+            if recursive: child.applyScale(scale, recursive=True)
 
         # apply to additionals
         for item in includeParentChange:
