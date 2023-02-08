@@ -97,13 +97,28 @@ class Pose:
     def setEuler(self, degrees: glm.vec3, order: str = 'ZXY', extrinsic: bool = True) -> "Pose":
         """Converts the given euler anlges to quaternion and sets the rotation property.
         - If extrinsic the rotation will be around the world axes, ignoring previous rotations.
+
         Returns itself."""
         self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
+        return self
+
+    def addEuler(self, degrees: glm.vec3, order: str = 'ZXY', extrinsic: bool = True, last: bool = True) -> "Pose":
+        """Adds an euler rotation to the current rotation.
+        - If extrinsic the rotation will be around the world axes, ignoring previous rotations.
+        - If last is True -> The rotation is added after the current rotation.
+
+        Returns itself."""
+        if last:
+            self.Rotation = Euler.toQuatFrom(glm.radians(degrees), order, extrinsic) * self.Rotation
+        else:
+            self.Rotation = self.Rotation * Euler.toQuatFrom(glm.radians(degrees), order, extrinsic)
+
         return self
 
     def lookAt(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Pose":
         """Sets Rotation so the Z- axis aligns with the given direction.
         - Direction is considered as local space.
+
         Returns itself."""
         direction = glm.normalize(direction)
         dirDot = abs(glm.dot(direction, (0, 1, 0)))
