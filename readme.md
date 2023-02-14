@@ -6,7 +6,7 @@
 <a href="https://www.buymeacoffee.com/ericdolch"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="20px"></a>
 
 # spatial-transform
-Lightweight libary for creating hierarchies in a three dimensional space, like Unity, Unreal, Blender or any other 3D application.
+Lightweight libary for creating hierarchies in a 3D space, like Unity, Unreal, Blender or any other 3D application.
 
 Properties like positions, rotations, directions and scales can be easily accessed and are calculated based on the parents space for the world space. Individual transforms can be attatched and detatched at any point and have some more comfort methods for easy modifications.
 
@@ -19,7 +19,8 @@ pip install spatial-transform
  ```
 
  ## Notes
--  `Transform` is the class for creating hierarchies. It contains all the properties and methods of reading and manipulating spaces.
+ - `Pose` is the class for all local space properties and operations. There is no awareness about other related space or hierarchy.
+-  `Transform` extend the `Pose` class to add hierarchical wareness and provides additional properties and methods for the world space.
 -  `Euler` is a class with static members only for converting euler angle into quaternions or matrices. It supports diffrent rotation orders and can be used to convert between
 - The package [PyGLM](https://github.com/Zuzu-Typ/PyGLM) is used for matrix, quaternion and vector calculations.
 - Same coordination space as [openGL and GLM](https://www.evl.uic.edu/ralph/508S98/coordinates.html) is used. Which is: Right-Handed, - Y+ is up, Z- is forward and positive rotations are counter clockwise.
