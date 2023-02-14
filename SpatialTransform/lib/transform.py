@@ -129,7 +129,7 @@ class Transform(Pose):
         return self.SpaceWorld * point
 
     def pointToLocal(self, point: glm.vec3) -> glm.vec3:
-        """Transforms a given point in world space to this  space."""
+        """Transforms a given point in world space to this local space."""
         return self.SpaceWorldInverse * point
 
     def directionToWorld(self, direction: glm.vec3) -> glm.vec3:
@@ -137,7 +137,7 @@ class Transform(Pose):
         return self.RotationWorld * direction
 
     def directionToLocal(self, direction: glm.vec3) -> glm.vec3:
-        """Transforms a given direction in world space to this  space."""
+        """Transforms a given direction in world space to this local space."""
         return self.RotationWorldInverse * direction
 
     def lookAt(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
@@ -146,6 +146,7 @@ class Transform(Pose):
     def lookAtWorld(self, direction: glm.vec3, up: glm.vec3 = glm.vec3(0, 1, 0)) -> "Transform":
         """Sets Rotation so the Z- axis aligns with the given direction.
         - Direction is considered as world space.
+
         Returns itself."""
         parentWorldRotationInverse = (self.Parent.RotationWorldInverse if self.Parent else glm.mat4())
         direction = parentWorldRotationInverse * direction
@@ -161,6 +162,7 @@ class Transform(Pose):
         - If keep is None or empty -> Local space propteries do not change.
         - If the transform is detatched first if it already has parent.
         - Nothing will change if the node already has a relation to this transform.
+
         Returns itself."""
         for node in nodes:
             # validate given joint
@@ -188,6 +190,7 @@ class Transform(Pose):
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
         - Nothing will change if the node has no relation to this transform.
+
         Returns itself."""
         for node in nodes:
             # validate given joint
@@ -211,6 +214,7 @@ class Transform(Pose):
         """Detaches/detachs itself from the parent.
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
+
         Returns itself."""
         if self.Parent is not None:
             self.Parent.detach(self, keep=keep)
@@ -220,6 +224,7 @@ class Transform(Pose):
         """Detachs all children of this transform.
         - If keep contains properties -> the property is modified to keep its spatial algiment in world space.
         - If keep is None or empty -> Local space propteries do not change.
+
         Returns itself."""
         if (len(self.Children) > 0):
             self.detach(*self.Children, keep=keep)
@@ -240,6 +245,7 @@ class Transform(Pose):
         """Changes the position of this transform and updates its children to keep them spatial unchanged.
         - If position is None -> the transform resets its position to (0, 0, 0).
         - If position IS set -> the given position is added to the current position.
+
         Returns itself."""
         change, changeInverse = self._applyPositionGetChanges(position)
 
@@ -271,6 +277,7 @@ class Transform(Pose):
         - If rotation is None -> the transform resets its rotation to (1, 0, 0, 0).
         - If rotation IS set -> the given rotation is added to the current rotation.
         - If bake Is True -> The rotation correction is NOT passed to the children, only positions will be modified.
+
         Returns itself."""
         change, changeInverse = self._applyRotationGetChanges(rotation)
 
@@ -302,6 +309,7 @@ class Transform(Pose):
         - If scale is NOT set -> The transform resets its scale to (1, 1, 1).
         - If scale IS set -> The given scale is added to the current scale.
         - If bake Is True -> The scale correction is NOT passed to the children, only positions will be modified.
+
         Returns itself."""
         change, changeInverse = self._applyScaleGetChanges(scale)
 
