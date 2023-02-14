@@ -1,8 +1,9 @@
 cff-version: 1.2.0
 message: "You may want to cite this software like below."
+title: "Transform hierarchies in 3D space"
+date-released: 2022-12-16
+version: 1.2.13
 authors:
   - family-names: Dolch
     given-names: Eric
-title: "Transform hierarchies in 3D space"
-version: 1.2.13
-date-released: 2022-12-16
+repository-code: "https://github.com/Wasserwecken/spatial-transform"
