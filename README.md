@@ -1,8 +1,8 @@
 [![PyPI version](https://badge.fury.io/py/spatial-transform.svg)](https://badge.fury.io/py/spatial-transform)
 [![PyPI download month](https://img.shields.io/pypi/dm/spatial-transform.svg)](https://pypi.python.org/pypi/spatial-transform/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Publish Main](https://github.com/Wasserwecken/spatial-transform/actions/workflows/build_main.yml/badge.svg?branch=main)](https://github.com/Wasserwecken/spatial-transform/actions)
-[![Publish Preview](https://github.com/Wasserwecken/spatial-transform/actions/workflows/build_preview.yml/badge.svg?branch=preview)](https://test.pypi.org/project/spatial-transform/)
+[![Build Main](https://github.com/Wasserwecken/spatial-transform/actions/workflows/build_main.yml/badge.svg?branch=main)](https://github.com/Wasserwecken/spatial-transform/actions)
+[![Build Preview](https://github.com/Wasserwecken/spatial-transform/actions/workflows/build_preview.yml/badge.svg?branch=preview)](https://test.pypi.org/project/spatial-transform/)
 <a href="https://www.buymeacoffee.com/ericdolch"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" height="20px"></a>
 
 # spatial-transform
