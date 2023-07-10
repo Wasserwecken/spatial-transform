@@ -15,8 +15,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = [
+  'PyGLM==2.7.0',
+]
 
 [project.urls]
 "Homepage" = "https://github.com/Wasserwecken/spatial-transform"
