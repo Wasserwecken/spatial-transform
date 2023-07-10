@@ -3,7 +3,6 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-dynamic = ["dependencies"]
 name = "spatial-transform"
 version = "1.2.14"
 authors = [ { name="Wasserwecken", email="author@example.com" }, ]
