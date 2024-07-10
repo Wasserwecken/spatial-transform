@@ -377,7 +377,7 @@ class Transform(Pose):
         if re.match(pattern, self.Name) is not None:
             result.append(self)
         for child in self.Children:
-            result.extend(child.filter(pattern))
+            result.extend(child.filterRegex(pattern))
 
         return result
 
