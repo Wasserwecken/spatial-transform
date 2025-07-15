@@ -2,8 +2,8 @@ name: Build Main
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - 'main'
 
 permissions:
   id-token: write
@@ -12,7 +12,6 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: github.ref_name == 'main'
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
@@ -62,8 +61,7 @@ jobs:
           python -m pip install build
 
       - name: Build package
-        run: |
-          python -m build
+        run: python -m build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
