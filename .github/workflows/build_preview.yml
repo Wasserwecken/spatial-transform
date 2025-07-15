@@ -12,6 +12,8 @@ permissions:
 jobs:
   publish-to-pypi:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
