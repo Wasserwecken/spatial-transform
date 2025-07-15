@@ -5,17 +5,23 @@ on:
     branches:
       - 'preview'
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read   # Required to read the repo content
+
 jobs:
-  build:
+  publish-to-pypi:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -39,7 +45,8 @@ jobs:
         run: python -m unittest discover -s SpatialTransform -p "test_*.py" -v
 
       - name: Build package
-        run: python -m build
+        run: |
+          python -m build
 
-      - name: Publish package to TestPyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
