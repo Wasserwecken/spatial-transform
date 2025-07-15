@@ -6,8 +6,8 @@ on:
       - 'preview'
 
 permissions:
-  id-token: write  # Required for OIDC
-  contents: read   # Required to read the repo content
+  id-token: write
+  contents: read
 
 jobs:
   publish-to-pypi:
@@ -55,3 +55,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          verbose: true
