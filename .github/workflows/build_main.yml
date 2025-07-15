@@ -2,8 +2,8 @@ name: Build Main
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - '*'
 
 permissions:
   id-token: write
@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
