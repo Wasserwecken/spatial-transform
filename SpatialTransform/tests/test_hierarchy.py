@@ -1,5 +1,5 @@
 import unittest
-from utils import *
+from .utils import *
 from SpatialTransform import Transform
 
 class AddRemove(unittest.TestCase):

@@ -1,6 +1,6 @@
 import glm
 import unittest
-from utils import *
+from .utils import *
 from SpatialTransform import Euler
 
 class Conversions(unittest.TestCase):
