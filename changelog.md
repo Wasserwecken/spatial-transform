@@ -1,3 +1,7 @@
+## 1.3.0
+- Fix tests.
+- Ditch support for 3.8 and later.
+
 ## 1.2.9
 - Refactored apply methods to be more flexible for overrides.
 - Apply methods to have now a bake option.
