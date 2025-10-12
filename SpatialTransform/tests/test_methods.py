@@ -56,6 +56,7 @@ class Convertions(unittest.TestCase):
         self.assertEqual(copy.Children[0].Rotation, p.Children[0].Rotation)
         self.assertEqual(copy.Children[0].Scale, p.Children[0].Scale)
         self.assertEqual(copy.Children[0].Parent, copy)
+
 class Rotations(unittest.TestCase):
     def test_setEuler(self):
         t = Transform()

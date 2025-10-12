@@ -255,7 +255,7 @@ class Transform(Pose):
             child._applyPositionChangeInverse(changeInverse)
 
             if recursive:
-                child.applyRotation(position=position, recursive=True)
+                child.applyPosition(position=position, recursive=True)
 
         return self
 

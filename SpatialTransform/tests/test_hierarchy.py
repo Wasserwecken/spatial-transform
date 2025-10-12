@@ -76,6 +76,54 @@ class AddRemove(unittest.TestCase):
         self.assertRaises(ValueError, root.detach, root)
         self.assertRaises(ValueError, root.detach, child)
 
+    def test_attach_exceptions(self):
+        """Test attach method exception handling."""
+        root = Transform()
+
+        # Test attaching None
+        with self.assertRaises(ValueError):
+            root.attach(None)
+
+        # Test attaching self
+        with self.assertRaises(ValueError):
+            root.attach(root)
+
+    def test_attach_already_attached(self):
+        """Test attaching already attached child (should not duplicate)."""
+        root = Transform()
+        child = Transform()
+
+        root.attach(child)
+        initial_count = len(root.Children)
+
+        # Attach same child again - should not duplicate
+        root.attach(child)
+        self.assertEqual(initial_count, len(root.Children))
+
+    def test_detach_unrelated_transform(self):
+        """Test detaching transform that isn't a child."""
+        root = Transform()
+        other_root = Transform()
+        child = Transform()
+
+        other_root.attach(child)
+
+        # Should not raise error, just do nothing
+        initial_count = len(root.Children)
+        root.detach(child)
+        self.assertEqual(initial_count, len(root.Children))
+
+    def test_clear_operations_on_empty(self):
+        """Test clear operations on transforms with no children/parent."""
+        transform = Transform()
+
+        # Should not raise errors
+        transform.clearChildren()
+        transform.clearParent()
+
+        self.assertEqual(0, len(transform.Children))
+        self.assertIsNone(transform.Parent)
+
     def test_detatchKeepProperties(self):
         for _ in range(randomSamples):
             root = Transform(position=randomPosition(), rotation=randomRotation(), scale=randomScale())
